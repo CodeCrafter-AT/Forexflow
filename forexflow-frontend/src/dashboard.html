@@ -1,0 +1,342 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Web App - Pro Trading Widgets</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13ec5b",
+                        "background-light": "#f8fafc",
+                        "background-dark": "#0a120d",
+                        "surface-dark": "#112217",
+                        "border-dark": "#1e3a27",
+                        "danger": "#ef4444",
+                        "warning": "#f59e0b",
+                    },
+                    fontFamily: {
+                        "sans": ["Inter", "sans-serif"]
+                    },
+                    borderRadius: {"DEFAULT": "0.375rem", "lg": "0.5rem", "xl": "0.75rem", "2xl": "1rem"},
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        body { font-family: 'Inter', sans-serif; }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        input[type="number"]::-webkit-inner-spin-button, 
+        input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+        .widget-card {
+            @apply bg-white dark:bg-surface-dark rounded-2xl border border-slate-200 dark:border-border-dark overflow-hidden transition-all duration-300 shadow-sm flex flex-col;
+        }
+        .widget-header {
+            @apply flex items-center justify-between p-5 border-b border-slate-100 dark:border-border-dark cursor-pointer hover:bg-slate-50 dark:hover:bg-white/5;
+        }
+        .widget-content {
+            @apply p-6 space-y-6 flex-1;
+        }
+        .label-style {
+            @apply block text-[11px] font-bold text-slate-500 dark:text-emerald-500/70 uppercase tracking-wider mb-2;
+        }
+        .input-field {
+            @apply w-full bg-slate-50 dark:bg-[#1a2e20] border-slate-200 dark:border-white/10 rounded-xl text-sm py-3 px-4 focus:ring-2 focus:ring-primary/50 focus:border-primary outline-none transition-all dark:text-white;
+        }
+        .slider-custom {
+            @apply w-full h-1.5 bg-slate-200 dark:bg-border-dark rounded-lg appearance-none cursor-pointer accent-primary;
+        }
+        .badge-saved {
+            @apply absolute -top-1 -right-1 flex items-center justify-center min-w-[18px] h-[18px] bg-primary text-[#0a120d] text-[10px] font-black rounded-full border-2 border-white dark:border-surface-dark;
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<div class="flex h-screen overflow-hidden">
+<aside class="w-64 bg-white dark:bg-surface-dark border-r border-slate-200 dark:border-border-dark flex flex-col shrink-0">
+<div class="p-6">
+<div class="flex items-center gap-3">
+<div class="size-10 bg-primary rounded-xl flex items-center justify-center text-background-dark shadow-lg shadow-primary/20">
+<span class="material-symbols-outlined font-bold">account_balance</span>
+</div>
+<div>
+<h1 class="text-lg font-black leading-none tracking-tight">PROTRADE</h1>
+<p class="text-[10px] text-slate-500 dark:text-emerald-500/60 font-bold uppercase tracking-widest mt-1">Trading Widgets</p>
+</div>
+</div>
+</div>
+<nav class="flex-1 px-4 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl bg-primary/10 text-primary border border-primary/20" href="#">
+<span class="material-symbols-outlined text-xl">dashboard_customize</span>
+<span class="text-sm font-semibold">Calculators</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined text-xl">candlestick_chart</span>
+<span class="text-sm font-semibold">Live Charts</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined text-xl">history</span>
+<span class="text-sm font-semibold">Saved Sessions</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5 transition-colors" href="#">
+<span class="material-symbols-outlined text-xl">settings</span>
+<span class="text-sm font-semibold">Preferences</span>
+</a>
+</nav>
+<div class="p-6 border-t border-slate-200 dark:border-border-dark">
+<div class="flex items-center gap-3 p-3 rounded-2xl bg-slate-50 dark:bg-background-dark/50 border border-slate-100 dark:border-border-dark">
+<img alt="User avatar" class="size-9 rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPtSJqis2ocA6L6_CkvRkKZWgxBpfDgl9jrX8FVCs83ILPqmT9pffB9buUIh9pZufraMIehyC8h5a0wsX1E6tFAEhhDjY2nmbKfv3xLPgmkZ2Sujm_QHEtBEeoyIv_vAE84OvmsvzIoe99Sr8vbkO-rXO0R3nEQBSOtXgGWPsGhqStqg4-E-oSbTjTKWisMRuhm5w_b_IdZXR4NOf6pYLR-V36bCU3z3E-_D4e-w5hDuEmZ3myUeVG8Dz3Y9oLfRq9L0pE7-tUJ3e_"/>
+<div class="overflow-hidden">
+<p class="text-xs font-bold truncate">Premium Trader</p>
+<div class="flex items-center gap-1.5 mt-0.5">
+<div class="size-1.5 bg-primary rounded-full"></div>
+<p class="text-[9px] text-primary font-black uppercase tracking-tighter">Verified Pro</p>
+</div>
+</div>
+</div>
+</div>
+</aside>
+<main class="flex-1 flex flex-col overflow-hidden">
+<header class="h-16 border-b border-slate-200 dark:border-border-dark bg-white/80 dark:bg-surface-dark/80 backdrop-blur-md flex items-center justify-between px-8 z-10">
+<div class="flex items-center gap-2 text-sm">
+<span class="text-slate-400">Workspace</span>
+<span class="material-symbols-outlined text-slate-300 text-lg">chevron_right</span>
+<span class="font-bold text-slate-800 dark:text-white">Forex Calculators</span>
+</div>
+<div class="flex items-center gap-6">
+<div class="relative cursor-pointer group">
+<span class="material-symbols-outlined text-slate-500 dark:text-slate-400 group-hover:text-primary transition-colors">bookmarks</span>
+<div class="badge-saved">3</div>
+</div>
+<div class="h-6 w-px bg-slate-200 dark:bg-border-dark"></div>
+<div class="flex items-center gap-3">
+<button class="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-xl">notifications</span>
+</button>
+<button class="p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-white/5 rounded-lg transition-colors">
+<span class="material-symbols-outlined text-xl">help</span>
+</button>
+</div>
+</div>
+</header>
+<div class="flex-1 overflow-y-auto p-8 no-scrollbar bg-slate-50 dark:bg-background-dark">
+<div class="max-w-7xl mx-auto">
+<div class="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4">
+<div>
+<h2 class="text-4xl font-black tracking-tight text-slate-900 dark:text-white">Trading Widgets</h2>
+<p class="text-slate-500 dark:text-slate-400 mt-2 text-base max-w-lg leading-relaxed">Precision modular tools for pip valuation, margin requirements, and risk mitigation.</p>
+</div>
+<div class="flex gap-3">
+<button class="flex items-center gap-2 px-5 py-2.5 bg-white dark:bg-surface-dark text-xs font-bold rounded-xl border border-slate-200 dark:border-border-dark hover:bg-slate-50 dark:hover:bg-white/5 transition-all shadow-sm">
+<span class="material-symbols-outlined text-sm">restart_alt</span>
+                            RESET ALL
+                        </button>
+<button class="flex items-center gap-2 px-5 py-2.5 bg-primary text-background-dark text-xs font-bold rounded-xl hover:brightness-110 transition-all shadow-xl shadow-primary/20">
+<span class="material-symbols-outlined text-sm">save</span>
+                            SAVE CURRENT STATE
+                        </button>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
+<div class="widget-card">
+<div class="widget-header">
+<div class="flex items-center gap-3">
+<div class="p-2 bg-blue-500/10 text-blue-500 rounded-lg">
+<span class="material-symbols-outlined text-xl">trending_up</span>
+</div>
+<h3 class="font-bold text-base tracking-tight">Pip Value Calculator</h3>
+</div>
+<span class="material-symbols-outlined text-slate-400 text-lg">expand_more</span>
+</div>
+<div class="widget-content">
+<div class="space-y-6">
+<div>
+<label class="label-style">Currency Pair</label>
+<select class="input-field appearance-none cursor-pointer">
+<option>EUR/USD (Euro / US Dollar)</option>
+<option>GBP/USD (Pound / US Dollar)</option>
+<option>USD/JPY (US Dollar / Yen)</option>
+<option>AUD/USD (Aussie / US Dollar)</option>
+</select>
+</div>
+<div>
+<div class="flex justify-between items-center mb-2">
+<label class="label-style">Lot Size</label>
+<span class="text-xs font-black text-primary bg-primary/10 px-2 py-0.5 rounded">1.50 Standard Lots</span>
+</div>
+<input class="slider-custom" max="10" min="0.01" step="0.01" type="range" value="1.50"/>
+<div class="flex justify-between text-[10px] text-slate-400 mt-2 font-bold uppercase tracking-tighter">
+<span>0.01 Micro</span>
+<span>5.00 Mid</span>
+<span>10.00 Max</span>
+</div>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-slate-100 dark:border-border-dark">
+<p class="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase mb-2 tracking-widest">Single Pip Value</p>
+<div class="flex items-baseline gap-2">
+<span class="text-4xl font-black text-primary">$15.00</span>
+<span class="text-sm font-semibold text-slate-400">USD</span>
+</div>
+<button class="w-full mt-6 py-3 bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 text-xs font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-primary hover:text-background-dark transition-all border border-transparent">
+<span class="material-symbols-outlined text-sm">bookmark_add</span>
+                                    SAVE CALCULATION
+                                </button>
+</div>
+</div>
+</div>
+<div class="widget-card">
+<div class="widget-header">
+<div class="flex items-center gap-3">
+<div class="p-2 bg-purple-500/10 text-purple-500 rounded-lg">
+<span class="material-symbols-outlined text-xl">account_balance_wallet</span>
+</div>
+<h3 class="font-bold text-base tracking-tight">Required Margin</h3>
+</div>
+<span class="material-symbols-outlined text-slate-400 text-lg">expand_more</span>
+</div>
+<div class="widget-content">
+<div class="space-y-6">
+<div>
+<div class="flex justify-between items-center mb-2">
+<label class="label-style">Leverage Tier</label>
+<span class="text-xs font-black text-primary bg-primary/10 px-2 py-0.5 rounded">1:500 (Max)</span>
+</div>
+<input class="slider-custom" max="500" min="1" step="1" type="range" value="500"/>
+<div class="flex justify-between text-[10px] text-slate-400 mt-2 font-bold uppercase tracking-tighter">
+<span>1:1 Static</span>
+<span>1:500 Aggressive</span>
+</div>
+</div>
+<div>
+<label class="label-style">Position Size (Base Units)</label>
+<div class="relative group">
+<input class="input-field pr-16" type="number" value="100000"/>
+<span class="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-slate-400 group-focus-within:text-primary transition-colors">UNITS</span>
+</div>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-slate-100 dark:border-border-dark">
+<div class="flex justify-between items-start">
+<div>
+<p class="text-[10px] text-slate-500 dark:text-slate-400 font-bold uppercase mb-2 tracking-widest">Collateral Required</p>
+<div class="flex items-baseline gap-2">
+<span class="text-4xl font-black text-primary">$216.42</span>
+<span class="text-sm font-semibold text-slate-400">USD</span>
+</div>
+</div>
+<div class="bg-primary/5 border border-primary/20 px-3 py-1.5 rounded-lg text-center">
+<p class="text-[8px] font-black text-primary uppercase leading-tight">Risk Exposure</p>
+<p class="text-[11px] font-bold text-primary">Ultra Low</p>
+</div>
+</div>
+<button class="w-full mt-6 py-3 bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 text-xs font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-primary hover:text-background-dark transition-all border border-transparent">
+<span class="material-symbols-outlined text-sm">bookmark_add</span>
+                                    SAVE CALCULATION
+                                </button>
+</div>
+</div>
+</div>
+<div class="widget-card ring-2 ring-danger/10">
+<div class="widget-header">
+<div class="flex items-center gap-3">
+<div class="p-2 bg-red-500/10 text-red-500 rounded-lg">
+<span class="material-symbols-outlined text-xl">shield_with_heart</span>
+</div>
+<h3 class="font-bold text-base tracking-tight text-danger">Risk Management</h3>
+</div>
+<span class="material-symbols-outlined text-slate-400 text-lg">expand_more</span>
+</div>
+<div class="widget-content">
+<div class="space-y-6">
+<div>
+<label class="label-style">Account Balance</label>
+<div class="relative group">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-xs font-black text-slate-400 group-focus-within:text-primary">$</span>
+<input class="input-field pl-8" type="number" value="50000"/>
+</div>
+</div>
+<div>
+<div class="flex justify-between items-center mb-2">
+<label class="label-style">Risk Percentage</label>
+<span class="text-xs font-black text-danger bg-danger/10 px-2 py-0.5 rounded">7.5% (High Alert)</span>
+</div>
+<input class="w-full h-1.5 bg-red-100 dark:bg-red-950/40 rounded-lg appearance-none cursor-pointer accent-danger" max="10" min="0.1" step="0.1" type="range" value="7.5"/>
+<div class="flex justify-between text-[10px] text-danger mt-2 font-bold uppercase tracking-tighter">
+<span>Safe (1%)</span>
+<span>Danger Zone</span>
+</div>
+</div>
+<div>
+<label class="label-style">Stop Loss Distance</label>
+<div class="relative">
+<input class="input-field border-danger/50 bg-danger/5 dark:bg-danger/5 text-danger font-bold focus:ring-danger" type="number" value="12"/>
+<span class="absolute right-4 top-1/2 -translate-y-1/2 text-[10px] font-black text-danger/60">PIPS</span>
+</div>
+<p class="text-[10px] text-danger mt-2.5 flex items-center gap-1.5 font-semibold">
+<span class="material-symbols-outlined text-[14px]">report</span>
+                                        Stop loss exceeds safe volatility limits.
+                                    </p>
+</div>
+</div>
+<div class="mt-8 pt-6 border-t border-slate-100 dark:border-border-dark">
+<div class="bg-danger/5 dark:bg-danger/10 p-4 rounded-xl border border-danger/20 flex justify-between items-center">
+<div>
+<p class="text-[10px] text-danger font-bold uppercase tracking-widest leading-none mb-1">Max Capital Loss</p>
+<p class="text-2xl font-black text-danger">$3,750.00</p>
+</div>
+<div class="text-right">
+<p class="text-[9px] text-slate-500 font-bold uppercase tracking-widest mb-1">Recommended</p>
+<p class="text-base font-black text-slate-900 dark:text-white leading-none">3.12 Lots</p>
+</div>
+</div>
+<button class="w-full mt-4 py-3 bg-slate-100 dark:bg-white/5 text-slate-600 dark:text-slate-300 text-xs font-bold rounded-xl flex items-center justify-center gap-2 hover:bg-danger hover:text-white transition-all border border-transparent">
+<span class="material-symbols-outlined text-sm">bookmark_add</span>
+                                    SAVE CALCULATION
+                                </button>
+</div>
+</div>
+</div>
+</div>
+<div class="mt-12 grid grid-cols-1 md:grid-cols-4 gap-4">
+<div class="p-6 bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark rounded-2xl flex flex-col gap-1">
+<span class="text-[10px] font-bold text-slate-500 dark:text-emerald-500/70 uppercase tracking-widest">Active Toolsets</span>
+<div class="flex items-center gap-2">
+<span class="text-2xl font-black">3/3</span>
+<span class="text-xs font-medium text-slate-400">Modules Running</span>
+</div>
+</div>
+<div class="p-6 bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark rounded-2xl flex flex-col gap-1">
+<span class="text-[10px] font-bold text-slate-500 dark:text-emerald-500/70 uppercase tracking-widest">Stored Items</span>
+<div class="flex items-center gap-2">
+<span class="text-2xl font-black text-primary">08</span>
+<span class="text-xs font-medium text-slate-400">LocalStorage Synced</span>
+</div>
+</div>
+<div class="p-6 bg-white dark:bg-surface-dark border border-slate-200 dark:border-border-dark rounded-2xl flex flex-col gap-1">
+<span class="text-[10px] font-bold text-slate-500 dark:text-emerald-500/70 uppercase tracking-widest">API Latency</span>
+<div class="flex items-center gap-2">
+<span class="text-2xl font-black">14ms</span>
+<span class="text-xs font-medium text-primary">Ultra-Fast</span>
+</div>
+</div>
+<div class="p-6 bg-primary border border-primary rounded-2xl flex flex-col justify-center gap-1 shadow-lg shadow-primary/20 cursor-pointer hover:brightness-105 transition-all">
+<div class="flex items-center justify-between">
+<span class="text-[10px] font-black text-background-dark uppercase tracking-widest">System Health</span>
+<span class="material-symbols-outlined text-background-dark text-lg">check_circle</span>
+</div>
+<span class="text-lg font-bold text-background-dark">READY FOR TRADE</span>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+
+</body></html>

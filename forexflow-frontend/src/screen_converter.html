@@ -1,0 +1,384 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>SaaS FX | Premium Currency Dashboard</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#3b82f6",
+                        "electric-blue": "#2563eb",
+                        "charcoal": "#0a0a0c",
+                        "surface": "#141416",
+                        "surface-accent": "#1c1c21",
+                        "border-subtle": "#2a2a30",
+                        "soft-grey": "#94a3b8",
+                    },
+                    fontFamily: {
+                        "sans": ["Inter", "sans-serif"]
+                    }
+                },
+            },
+        }
+    </script>
+    <style type="text/tailwindcss">
+        @layer base {
+            body { @apply bg-charcoal text-slate-200 antialiased font-sans; }
+        }
+        .glass-nav {
+            @apply bg-charcoal/60 backdrop-blur-xl border-b border-white/5 sticky top-0 z-50;
+        }
+        .ticker-item {
+            @apply flex items-center gap-2 px-4 py-1 text-[11px] font-bold tracking-tight border-r border-white/5;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 4px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #2a2a30;
+            border-radius: 10px;
+        }
+        .hero-gradient {
+            background: radial-gradient(circle at top right, rgba(59, 130, 246, 0.08), transparent 60%);
+        }
+    </style>
+</head>
+
+<body class="flex flex-col min-h-screen">
+    <nav class="glass-nav">
+        <div class="flex items-center justify-between px-6 h-16 max-w-[1600px] mx-auto">
+            <div class="flex items-center gap-8">
+                <div class="flex items-center gap-2.5">
+                    <div class="bg-electric-blue p-1.5 rounded-lg">
+                        <span class="material-symbols-outlined text-white text-xl">account_balance_wallet</span>
+                    </div>
+                    <span class="text-lg font-extrabold tracking-tight text-white uppercase">Forex<span
+                            class="text-electric-blue">Flow</span></span>
+                </div>
+                <div class="hidden md:flex items-center gap-6">
+                    <a class="text-sm font-semibold text-white" href="#">Converter</a>
+                    <a class="text-sm font-medium text-soft-grey hover:text-white transition-colors"
+                        href="#">Markets</a>
+                    <a class="text-sm font-medium text-soft-grey hover:text-white transition-colors" href="#">Tools</a>
+                    <a class="text-sm font-medium text-soft-grey hover:text-white transition-colors"
+                        href="#">History</a>
+                </div>
+            </div>
+            <div class="flex items-center gap-4">
+                <div class="hidden xl:flex items-center bg-black/20 rounded-full border border-white/5 px-2">
+                    <div class="ticker-item">
+                        <span class="text-soft-grey">EUR/USD</span>
+                        <span class="text-emerald-400">1.0824</span>
+                        <span class="material-symbols-outlined text-[12px] text-emerald-400">trending_up</span>
+                    </div>
+                    <div class="ticker-item">
+                        <span class="text-soft-grey">GBP/USD</span>
+                        <span class="text-rose-400">1.2642</span>
+                        <span class="material-symbols-outlined text-[12px] text-rose-400">trending_down</span>
+                    </div>
+                    <div class="ticker-item border-none">
+                        <span class="text-soft-grey">USD/JPY</span>
+                        <span class="text-emerald-400">149.82</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 ml-4">
+                    <button class="p-2 text-soft-grey hover:text-white transition-colors">
+                        <span class="material-symbols-outlined">search</span>
+                    </button>
+                    <div class="h-4 w-[1px] bg-white/10"></div>
+                    <img alt="User" class="w-8 h-8 rounded-full border border-white/10 cursor-pointer"
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsEkcLyyWjacK-8SEhMnq7HjFVnK7K3uCS7JaU5OVPTqAae7Um31kaIFuIUYaS2DBa1dVOgspiExtFk_O6SBEkjNnINBNwWDXojPKMSdq_EgP11XVjdbG2vHPM9nNrpz0A8rdczs4ZDlrmGFaVFXPx_iIP2mLtEVXrcQEq5ue47r5-gB-m1kUsZNXVjnAF5QOHy66q19AL1BhlaDsJIPjUoFHAb32os4HuMoDf719w07snw03nQXHtQTGOlNXzZPvjwyOG702Rqckz" />
+                </div>
+            </div>
+        </div>
+    </nav>
+    <main class="flex-1 flex hero-gradient">
+        <aside class="w-20 lg:w-64 border-r border-border-subtle bg-surface/50 hidden md:flex flex-col">
+            <div class="p-6 space-y-1">
+                <a class="flex items-center gap-3 px-4 py-3 bg-electric-blue/10 text-electric-blue rounded-xl font-semibold"
+                    href="#">
+                    <span class="material-symbols-outlined">sync_alt</span>
+                    <span class="hidden lg:block">Converter</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 text-soft-grey hover:text-white hover:bg-white/5 rounded-xl transition-all font-medium"
+                    href="#">
+                    <span class="material-symbols-outlined">monitoring</span>
+                    <span class="hidden lg:block">Analysis</span>
+                </a>
+                <a class="flex items-center gap-3 px-4 py-3 text-soft-grey hover:text-white hover:bg-white/5 rounded-xl transition-all font-medium"
+                    href="#">
+                    <span class="material-symbols-outlined">webhook</span>
+                    <span class="hidden lg:block">API Access</span>
+                </a>
+                <div class="my-6 border-t border-border-subtle mx-4"></div>
+                <a class="flex items-center gap-3 px-4 py-3 text-soft-grey hover:text-white hover:bg-white/5 rounded-xl transition-all font-medium"
+                    href="#">
+                    <span class="material-symbols-outlined">settings</span>
+                    <span class="hidden lg:block">Settings</span>
+                </a>
+            </div>
+            <div class="mt-auto p-6">
+                <div class="bg-surface-accent border border-border-subtle rounded-2xl p-4 hidden lg:block">
+                    <p class="text-[10px] font-bold text-electric-blue uppercase mb-1">PRO ACCOUNT</p>
+                    <p class="text-xs text-soft-grey mb-3">Priority processing active.</p>
+                    <div class="h-1 w-full bg-white/5 rounded-full overflow-hidden">
+                        <div class="h-full bg-electric-blue w-3/4"></div>
+                    </div>
+                </div>
+            </div>
+        </aside>
+        <div class="flex-1 overflow-y-auto custom-scrollbar">
+            <div class="max-w-5xl mx-auto p-8 lg:p-12 space-y-12">
+                <section class="space-y-6">
+                    <div class="flex items-end justify-between">
+                        <div>
+                            <h1 class="text-3xl font-bold text-white tracking-tight">Currency Converter</h1>
+                            <p class="text-soft-grey text-sm mt-1">Real-time institutional rates with zero latency.</p>
+                        </div>
+                        <div
+                            class="flex items-center gap-2 text-xs font-bold text-emerald-400 bg-emerald-400/5 px-3 py-1.5 rounded-full border border-emerald-400/10">
+                            <span class="size-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                            LIVE FEED ACTIVE
+                        </div>
+                    </div>
+                    <div
+                        class="bg-surface border border-border-subtle rounded-[2rem] p-8 shadow-2xl relative overflow-hidden group">
+                        <div
+                            class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-electric-blue/0 via-electric-blue to-electric-blue/0">
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-6 items-center">
+                            <div class="space-y-3">
+                                <label
+                                    class="text-[10px] font-bold text-soft-grey uppercase tracking-widest px-1">Source
+                                    Amount</label>
+                                <div
+                                    class="bg-surface-accent border border-border-subtle rounded-2xl p-6 focus-within:border-electric-blue/50 transition-colors">
+                                    <div class="flex items-center justify-between gap-4">
+                                        <input
+                                            class="bg-transparent border-none p-0 text-3xl font-bold text-white focus:ring-0 w-full"
+                                            type="text" value="1,250.00" />
+                                        <button
+                                            class="flex items-center gap-2 bg-charcoal px-3 py-2 rounded-xl border border-border-subtle hover:bg-border-subtle transition-colors shrink-0">
+                                            <img alt="USD" class="w-6 h-4 object-cover rounded shadow"
+                                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuAO2YK_bvFHsC4XuHbV263eGbCoW1SggG9Lnet4_AyRww-YBvXNL_boyDSiJ5bgSfHsVbSAXMTDf_rSdRq75xl8ewdzGJ7StB265eoOamEd_eBqmA_z3C__xQAJ4eL5Wggp9N12Ix2FuoSv19gjNe37X57kxUhDUEsvpnS_hy5ZHYlWBbBFXeUGvi6tZvZEV6UurPPGHSTXeuWUmWFJNVHQxkVoOoL9B8NiIKXTijZBpQAoXdwMiXyvm7IpEGzD0UkJGIO5GV6rxZNx" />
+                                            <span class="font-bold text-sm">USD</span>
+                                            <span
+                                                class="material-symbols-outlined text-soft-grey text-lg">expand_more</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex justify-center md:pt-6">
+                                <button
+                                    class="bg-electric-blue text-white w-12 h-12 rounded-full flex items-center justify-center shadow-lg shadow-electric-blue/20 hover:scale-110 active:scale-95 transition-all">
+                                    <span class="material-symbols-outlined font-bold">swap_horiz</span>
+                                </button>
+                            </div>
+                            <div class="space-y-3">
+                                <label
+                                    class="text-[10px] font-bold text-soft-grey uppercase tracking-widest px-1">Converted
+                                    Result</label>
+                                <div class="bg-surface-accent border border-border-subtle rounded-2xl p-6 relative">
+                                    <div class="flex items-center justify-between gap-4">
+                                        <div class="text-3xl font-bold text-electric-blue">1,154.32</div>
+                                        <button
+                                            class="flex items-center gap-2 bg-charcoal px-3 py-2 rounded-xl border border-border-subtle hover:bg-border-subtle transition-colors shrink-0">
+                                            <img alt="EUR" class="w-6 h-4 object-cover rounded shadow"
+                                                src="https://lh3.googleusercontent.com/aida-public/AB6AXuBO_PUZDtuZgnq-9AHCiLU_hfrjbUR8ZrBET5eIfDab495gtALeaKidAUg3hozDMeIpe8I4sG-lDlgtvQr3q-yScgUS55C0cOu5lKLa4Yc2IpsrrPe9WzPDE7oaUQwfVbG7sIgzDX_WZSISu_gJtJ1ZiiA-L7o0VAyBaaj779oc9iIGz937GXnRttFkCfSjmbFL3XMX6GoM87DDES6PwRWh-Y5VKbr8RMHHxfEyc3yBqQvYop4nP-2Fa28tNW2lky6SD3s4WrMg2IHc" />
+                                            <span class="font-bold text-sm">EUR</span>
+                                            <span
+                                                class="material-symbols-outlined text-soft-grey text-lg">expand_more</span>
+                                        </button>
+                                    </div>
+                                    <button
+                                        class="absolute -top-3 -right-3 bg-surface-accent border border-border-subtle p-2 rounded-lg text-soft-grey hover:text-white transition-colors shadow-xl group/copy">
+                                        <span class="material-symbols-outlined text-sm">content_copy</span>
+                                        <span
+                                            class="absolute -bottom-8 left-1/2 -translate-x-1/2 bg-charcoal text-[10px] px-2 py-1 rounded opacity-0 group-hover/copy:opacity-100 transition-opacity whitespace-nowrap">Copy
+                                            Result</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div
+                            class="mt-10 flex flex-col md:flex-row items-center justify-between gap-6 pt-8 border-t border-border-subtle">
+                            <div class="flex items-center gap-8">
+                                <div>
+                                    <p class="text-[10px] font-bold text-soft-grey uppercase tracking-wider mb-1">
+                                        Exchange Rate</p>
+                                    <p class="text-sm font-semibold text-white">1 USD = 0.9234 EUR</p>
+                                </div>
+                                <div class="h-8 w-[1px] bg-border-subtle"></div>
+                                <div>
+                                    <p class="text-[10px] font-bold text-soft-grey uppercase tracking-wider mb-1">Fee
+                                        (0.01%)</p>
+                                    <p class="text-sm font-semibold text-white">$0.13 <span
+                                            class="text-soft-grey font-normal ml-1">Included</span></p>
+                                </div>
+                            </div>
+                            <div class="flex gap-3 w-full md:w-auto">
+                                <button
+                                    class="flex-1 md:flex-none px-8 py-4 bg-white text-charcoal font-bold rounded-2xl hover:bg-slate-200 transition-all flex items-center justify-center gap-2">
+                                    <span class="material-symbols-outlined text-xl">account_balance</span>
+                                    Execute Trade
+                                </button>
+                                <button
+                                    class="px-5 py-4 bg-surface-accent border border-border-subtle text-white font-bold rounded-2xl hover:bg-border-subtle transition-all flex items-center justify-center">
+                                    <span class="material-symbols-outlined">analytics</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <div class="lg:col-span-2 bg-surface border border-border-subtle rounded-3xl p-6">
+                        <div class="flex items-center justify-between mb-8">
+                            <h3 class="font-bold text-white flex items-center gap-2">
+                                <span class="material-symbols-outlined text-electric-blue">show_chart</span>
+                                Market Performance
+                            </h3>
+                            <div class="flex bg-charcoal rounded-lg p-1 border border-border-subtle">
+                                <button
+                                    class="px-3 py-1 text-[10px] font-bold text-white bg-surface-accent rounded shadow-sm">1H</button>
+                                <button
+                                    class="px-3 py-1 text-[10px] font-bold text-soft-grey hover:text-white transition-all">1D</button>
+                                <button
+                                    class="px-3 py-1 text-[10px] font-bold text-soft-grey hover:text-white transition-all">1W</button>
+                            </div>
+                        </div>
+                        <div class="h-48 flex items-end gap-3 px-2">
+                            <div class="flex-1 bg-electric-blue/10 hover:bg-electric-blue/20 rounded-t-xl transition-all"
+                                style="height: 40%"></div>
+                            <div class="flex-1 bg-electric-blue/10 hover:bg-electric-blue/20 rounded-t-xl transition-all"
+                                style="height: 65%"></div>
+                            <div class="flex-1 bg-electric-blue/10 hover:bg-electric-blue/20 rounded-t-xl transition-all"
+                                style="height: 55%"></div>
+                            <div class="flex-1 bg-electric-blue/10 hover:bg-electric-blue/20 rounded-t-xl transition-all"
+                                style="height: 85%"></div>
+                            <div class="flex-1 bg-electric-blue/10 hover:bg-electric-blue/20 rounded-t-xl transition-all"
+                                style="height: 70%"></div>
+                            <div class="flex-1 bg-electric-blue/10 hover:bg-electric-blue/20 rounded-t-xl transition-all"
+                                style="height: 90%"></div>
+                            <div class="flex-1 bg-electric-blue shadow-[0_0_20px_rgba(37,99,235,0.3)] rounded-t-xl"
+                                style="height: 75%"></div>
+                        </div>
+                        <div
+                            class="flex justify-between mt-6 px-2 text-[10px] font-bold text-soft-grey uppercase tracking-widest">
+                            <span>08:00</span>
+                            <span>12:00</span>
+                            <span>16:00</span>
+                            <span>20:00</span>
+                            <span>00:00</span>
+                        </div>
+                    </div>
+                    <div class="bg-surface border border-border-subtle rounded-3xl flex flex-col">
+                        <div class="p-6 border-b border-border-subtle flex items-center justify-between">
+                            <h3 class="text-xs font-bold uppercase tracking-widest text-white">Live Rates</h3>
+                            <span class="text-[10px] font-medium text-soft-grey">Updated 2s ago</span>
+                        </div>
+                        <div class="flex-1 divide-y divide-border-subtle/50">
+                            <div
+                                class="p-4 hover:bg-white/[0.02] transition-colors flex items-center justify-between cursor-pointer group">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-8 h-8 rounded-lg bg-charcoal border border-border-subtle flex items-center justify-center text-[10px] font-bold">
+                                        EU</div>
+                                    <div>
+                                        <p
+                                            class="text-xs font-bold text-white group-hover:text-electric-blue transition-colors">
+                                            EUR/USD</p>
+                                        <p class="text-[10px] text-soft-grey">Euro Zone</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-xs font-bold text-white">1.0824</p>
+                                    <p class="text-[10px] text-emerald-400 font-bold">+0.12%</p>
+                                </div>
+                            </div>
+                            <div
+                                class="p-4 hover:bg-white/[0.02] transition-colors flex items-center justify-between cursor-pointer group">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-8 h-8 rounded-lg bg-charcoal border border-border-subtle flex items-center justify-center text-[10px] font-bold">
+                                        GB</div>
+                                    <div>
+                                        <p
+                                            class="text-xs font-bold text-white group-hover:text-electric-blue transition-colors">
+                                            GBP/USD</p>
+                                        <p class="text-[10px] text-soft-grey">Great Britain</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-xs font-bold text-white">1.2642</p>
+                                    <p class="text-[10px] text-rose-400 font-bold">-0.04%</p>
+                                </div>
+                            </div>
+                            <div
+                                class="p-4 hover:bg-white/[0.02] transition-colors flex items-center justify-between cursor-pointer group">
+                                <div class="flex items-center gap-3">
+                                    <div
+                                        class="w-8 h-8 rounded-lg bg-charcoal border border-border-subtle flex items-center justify-center text-[10px] font-bold">
+                                        JP</div>
+                                    <div>
+                                        <p
+                                            class="text-xs font-bold text-white group-hover:text-electric-blue transition-colors">
+                                            USD/JPY</p>
+                                        <p class="text-[10px] text-soft-grey">Japan</p>
+                                    </div>
+                                </div>
+                                <div class="text-right">
+                                    <p class="text-xs font-bold text-white">149.82</p>
+                                    <p class="text-[10px] text-emerald-400 font-bold">+0.42%</p>
+                                </div>
+                            </div>
+                        </div>
+                        <button
+                            class="p-4 text-[10px] font-bold text-soft-grey hover:text-white transition-colors border-t border-border-subtle">
+                            VIEW ALL 150+ PAIRS
+                        </button>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-6 py-8 border-t border-border-subtle">
+                    <div class="space-y-1">
+                        <p class="text-[10px] font-bold text-soft-grey uppercase tracking-widest">Global Users</p>
+                        <p class="text-lg font-bold text-white">1.2M+</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-[10px] font-bold text-soft-grey uppercase tracking-widest">Daily Volume</p>
+                        <p class="text-lg font-bold text-white">$4.8B</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-[10px] font-bold text-soft-grey uppercase tracking-widest">Network Speed</p>
+                        <p class="text-lg font-bold text-white">12ms</p>
+                    </div>
+                    <div class="space-y-1">
+                        <p class="text-[10px] font-bold text-soft-grey uppercase tracking-widest">Security</p>
+                        <p class="text-lg font-bold text-white">SOC-2</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+    <footer class="bg-charcoal border-t border-border-subtle py-4 px-6 text-center">
+        <p class="text-[10px] text-soft-grey font-medium tracking-tight">
+            © 2024 Premium Forex SaaS Platform. High-risk trading involves significant risk of loss.
+        </p>
+    </footer>
+
+</body>
+
+</html>

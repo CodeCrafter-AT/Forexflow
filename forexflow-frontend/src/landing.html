@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Real-time Currency Converter | ForexFlow</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#13ec5b",
+                        "background-light": "#f6f8f6",
+                        "background-dark": "#102216",
+                        "card-dark": "#162d1d",
+                        "border-dark": "#23482f",
+                    },
+                    fontFamily: {
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                    borderRadius: {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            font-family: 'Manrope', sans-serif;
+        }
+        .glass-panel {
+            background: rgba(22, 45, 29, 0.7);
+            backdrop-filter: blur(12px);
+        }
+    </style>
+</head>
+<body class="bg-background-light dark:bg-background-dark text-slate-900 dark:text-slate-100 min-h-screen">
+<!-- Top Navigation Bar -->
+<header class="border-b border-border-dark bg-background-dark/80 sticky top-0 z-50 backdrop-blur-md">
+<div class="max-w-[1200px] mx-auto px-6 h-16 flex items-center justify-between">
+<div class="flex items-center gap-8">
+<div class="flex items-center gap-2 text-primary">
+<span class="material-symbols-outlined text-3xl">currency_exchange</span>
+<h2 class="text-white text-xl font-extrabold tracking-tight">Forex<span class="text-primary">Flow</span></h2>
+</div>
+<nav class="hidden md:flex items-center gap-6">
+<a class="text-sm font-semibold text-white hover:text-primary transition-colors" href="#">Markets</a>
+<a class="text-sm font-semibold text-primary transition-colors border-b-2 border-primary pb-5 mt-5" href="#">Converter</a>
+<a class="text-sm font-semibold text-slate-400 hover:text-white transition-colors" href="#">Charts</a>
+<a class="text-sm font-semibold text-slate-400 hover:text-white transition-colors" href="#">Tools</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="relative hidden lg:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm">search</span>
+<input class="bg-card-dark border-border-dark rounded-lg pl-10 pr-4 py-1.5 text-sm focus:ring-primary focus:border-primary w-64 text-white" placeholder="Search pairs..." type="text"/>
+</div>
+<button class="bg-primary text-background-dark px-5 py-2 rounded-lg font-bold text-sm hover:brightness-110 transition-all">Sign Up</button>
+<div class="size-9 rounded-full bg-slate-800 border border-border-dark flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="User avatar profile picture" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsEkcLyyWjacK-8SEhMnq7HjFVnK7K3uCS7JaU5OVPTqAae7Um31kaIFuIUYaS2DBa1dVOgspiExtFk_O6SBEkjNnINBNwWDXojPKMSdq_EgP11XVjdbG2vHPM9nNrpz0A8rdczs4ZDlrmGFaVFXPx_iIP2mLtEVXrcQEq5ue47r5-gB-m1kUsZNXVjnAF5QOHy66q19AL1BhlaDsJIPjUoFHAb32os4HuMoDf719w07snw03nQXHtQTGOlNXzZPvjwyOG702Rqckz"/>
+</div>
+</div>
+</div>
+</header>
+<main class="max-w-[1200px] mx-auto px-6 py-10">
+<!-- Hero Title -->
+<div class="mb-10 text-center lg:text-left">
+<h1 class="text-4xl md:text-5xl font-extrabold text-white mb-4">Professional Forex Converter</h1>
+<div class="flex flex-wrap items-center justify-center lg:justify-start gap-4 text-slate-400">
+<div class="flex items-center gap-2">
+<span class="size-2 rounded-full bg-primary animate-pulse"></span>
+<span class="text-sm">Live market data</span>
+</div>
+<span class="text-slate-600">•</span>
+<span class="text-sm">Last updated: Oct 26, 2023, 14:30 UTC</span>
+<span class="text-slate-600">•</span>
+<button class="flex items-center gap-1 text-primary text-sm hover:underline">
+<span class="material-symbols-outlined text-sm">refresh</span> Refresh Rates
+                </button>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+<!-- Main Converter Card -->
+<div class="lg:col-span-2 flex flex-col gap-6">
+<div class="bg-card-dark border border-border-dark p-8 rounded-xl shadow-2xl relative overflow-hidden">
+<!-- Background Accent -->
+<div class="absolute top-0 right-0 w-64 h-64 bg-primary/5 blur-[100px] -z-10"></div>
+<div class="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] gap-6 items-end relative">
+<!-- Amount Input -->
+<div class="md:col-span-3 mb-4">
+<label class="block text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Amount to Convert</label>
+<div class="relative">
+<span class="absolute left-4 top-1/2 -translate-y-1/2 text-2xl font-bold text-slate-500">$</span>
+<input class="w-full bg-background-dark/50 border-2 border-border-dark focus:border-primary focus:ring-0 rounded-xl py-4 pl-10 pr-4 text-3xl font-extrabold text-white transition-all" type="number" value="1000.00"/>
+</div>
+</div>
+<!-- From Currency -->
+<div class="flex flex-col gap-2">
+<label class="text-xs font-bold uppercase tracking-wider text-slate-400">From</label>
+<div class="flex items-center gap-3 bg-background-dark/50 border border-border-dark p-4 rounded-xl cursor-pointer hover:border-primary transition-colors group">
+<img class="w-8 h-6 object-cover rounded shadow-sm" data-alt="US Flag for USD currency" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAO2YK_bvFHsC4XuHbV263eGbCoW1SggG9Lnet4_AyRww-YBvXNL_boyDSiJ5bgSfHsVbSAXMTDf_rSdRq75xl8ewdzGJ7StB265eoOamEd_eBqmA_z3C__xQAJ4eL5Wggp9N12Ix2FuoSv19gjNe37X57kxUhDUEsvpnS_hy5ZHYlWBbBFXeUGvi6tZvZEV6UurPPGHSTXeuWUmWFJNVHQxkVoOoL9B8NiIKXTijZBpQAoXdwMiXyvm7IpEGzD0UkJGIO5GV6rxZNx"/>
+<div class="flex-1">
+<div class="text-white font-bold">USD</div>
+<div class="text-xs text-slate-500">United States Dollar</div>
+</div>
+<span class="material-symbols-outlined text-slate-500 group-hover:text-primary">expand_more</span>
+</div>
+</div>
+<!-- Swap Button -->
+<div class="flex justify-center pb-2">
+<button class="size-12 rounded-full bg-primary text-background-dark flex items-center justify-center shadow-lg shadow-primary/20 hover:scale-110 active:scale-95 transition-all">
+<span class="material-symbols-outlined font-bold">swap_horiz</span>
+</button>
+</div>
+<!-- To Currency -->
+<div class="flex flex-col gap-2">
+<label class="text-xs font-bold uppercase tracking-wider text-slate-400">To</label>
+<div class="flex items-center gap-3 bg-background-dark/50 border border-border-dark p-4 rounded-xl cursor-pointer hover:border-primary transition-colors group">
+<img class="w-8 h-6 object-cover rounded shadow-sm" data-alt="EU Flag for Euro currency" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBO_PUZDtuZgnq-9AHCiLU_hfrjbUR8ZrBET5eIfDab495gtALeaKidAUg3hozDMeIpe8I4sG-lDlgtvQr3q-yScgUS55C0cOu5lKLa4Yc2IpsrrPe9WzPDE7oaUQwfVbG7sIgzDX_WZSISu_gJtJ1ZiiA-L7o0VAyBaaj779oc9iIGz937GXnRttFkCfSjmbFL3XMX6GoM87DDES6PwRWh-Y5VKbr8RMHHxfEyc3yBqQvYop4nP-2Fa28tNW2lky6SD3s4WrMg2IHc"/>
+<div class="flex-1">
+<div class="text-white font-bold">EUR</div>
+<div class="text-xs text-slate-500">Euro</div>
+</div>
+<span class="material-symbols-outlined text-slate-500 group-hover:text-primary">expand_more</span>
+</div>
+</div>
+</div>
+<div class="mt-10 pt-8 border-t border-border-dark/50 flex flex-col md:flex-row md:items-end justify-between gap-6">
+<div>
+<p class="text-slate-400 font-medium mb-1">1,000.00 USD =</p>
+<div class="flex items-baseline gap-2">
+<h2 class="text-5xl font-black text-primary">924.50</h2>
+<span class="text-2xl font-bold text-white">EUR</span>
+</div>
+<p class="text-sm text-slate-500 mt-2">1 USD = 0.9245 EUR <span class="mx-2">|</span> 1 EUR = 1.0816 USD</p>
+</div>
+<div class="flex flex-col gap-3">
+<button class="bg-primary hover:brightness-110 text-background-dark font-black py-4 px-10 rounded-xl text-lg shadow-xl shadow-primary/10 transition-all flex items-center justify-center gap-2">
+<span class="material-symbols-outlined">trending_up</span>
+                                Trade Now
+                            </button>
+</div>
+</div>
+</div>
+<!-- Historical Context Chart Area -->
+<div class="bg-card-dark border border-border-dark p-6 rounded-xl">
+<div class="flex items-center justify-between mb-6">
+<h3 class="font-bold text-white flex items-center gap-2">
+<span class="material-symbols-outlined text-primary">show_chart</span>
+                            USD to EUR Historical Trend
+                        </h3>
+<div class="flex gap-2">
+<button class="text-xs px-3 py-1 bg-background-dark rounded border border-border-dark text-slate-400 hover:text-white">1H</button>
+<button class="text-xs px-3 py-1 bg-primary text-background-dark rounded font-bold">1D</button>
+<button class="text-xs px-3 py-1 bg-background-dark rounded border border-border-dark text-slate-400 hover:text-white">1W</button>
+<button class="text-xs px-3 py-1 bg-background-dark rounded border border-border-dark text-slate-400 hover:text-white">1M</button>
+</div>
+</div>
+<div class="h-48 flex items-end justify-between gap-1">
+<!-- Simulated Chart Bars -->
+<div class="w-full bg-primary/20 hover:bg-primary/40 rounded-t transition-all" style="height: 60%" title="0.912"></div>
+<div class="w-full bg-primary/20 hover:bg-primary/40 rounded-t transition-all" style="height: 65%" title="0.915"></div>
+<div class="w-full bg-primary/20 hover:bg-primary/40 rounded-t transition-all" style="height: 55%" title="0.910"></div>
+<div class="w-full bg-primary/20 hover:bg-primary/40 rounded-t transition-all" style="height: 70%" title="0.918"></div>
+<div class="w-full bg-primary/20 hover:bg-primary/40 rounded-t transition-all" style="height: 85%" title="0.922"></div>
+<div class="w-full bg-primary/20 hover:bg-primary/40 rounded-t transition-all" style="height: 80%" title="0.920"></div>
+<div class="w-full bg-primary/40 hover:bg-primary/60 rounded-t transition-all" style="height: 95%" title="0.926"></div>
+<div class="w-full bg-primary/20 hover:bg-primary/40 rounded-t transition-all" style="height: 75%" title="0.921"></div>
+<div class="w-full bg-primary hover:bg-primary rounded-t transition-all shadow-[0_0_15px_rgba(19,236,91,0.3)]" style="height: 100%" title="0.924"></div>
+</div>
+</div>
+</div>
+<!-- Sidebar Widgets -->
+<div class="flex flex-col gap-6">
+<!-- Market Overview Card -->
+<div class="bg-card-dark border border-border-dark rounded-xl overflow-hidden">
+<div class="p-4 border-b border-border-dark bg-background-dark/30">
+<h3 class="font-bold text-white text-sm uppercase tracking-widest">Popular Pairs</h3>
+</div>
+<div class="divide-y divide-border-dark/30">
+<div class="p-4 flex items-center justify-between hover:bg-white/5 cursor-pointer transition-colors">
+<div class="flex items-center gap-3">
+<div class="flex -space-x-2">
+<img class="size-6 rounded-full border border-background-dark object-cover" data-alt="UK Flag" src="https://lh3.googleusercontent.com/aida-public/AB6AXuASK52MnfFB8dP-2Z-B_IPSA8femuacnqpPQ7XvjR1UChcYq-8E53VRjnHHsLQ7AlFzPGgaWYZ5Ld9zHH0Y7F8poSVSQSpQFawuJLIp85tt2pB91SXVDnO5hPQcwi6fsz4FkLTg4gnUN8DAn5RHL_C1dqBAiKiQcHH7T6rT8VLKVwoliOOGvrXL6_UYDKoyzoAqwX-4RJffC3HJeAixoL8df887o8fQfyugtb02chxyXntYhlItnYzgxclxLbREXtqCfsEsWT_fF4ox"/>
+<img class="size-6 rounded-full border border-background-dark object-cover" data-alt="US Flag" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDEyQDscCIpU3ldll1DTMK1GiXC-El6g8cXXN5AL5-vCAdzmHQ-hl9iaIZuYn-CgtFBPnq3eoD7_ndVYswvXPrcQrIqHOz5nYM6OODbDW-Fu4pAwXIxCL8z9oMVYhcJ31yoSAcxdwC6lP5w4FSYwW7fhyNUyHaKG6l3ccvC_0llK2rO_yNLaNcup3U724aOFp4shJ7MF_e6cJULt3LvQNSb1wDYVWx_nYm83c5KkNk11j5o3hk0iFlXXNvQq9__TDvUCnF93D2GaoSy"/>
+</div>
+<div>
+<div class="text-sm font-bold text-white">GBP / USD</div>
+<div class="text-[10px] text-slate-500">British Pound</div>
+</div>
+</div>
+<div class="text-right">
+<div class="text-sm font-bold text-white">1.2145</div>
+<div class="text-xs text-primary">+0.24%</div>
+</div>
+</div>
+<div class="p-4 flex items-center justify-between hover:bg-white/5 cursor-pointer transition-colors">
+<div class="flex items-center gap-3">
+<div class="flex -space-x-2">
+<img class="size-6 rounded-full border border-background-dark object-cover" data-alt="US Flag" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAzJu3t6IV-LaggmFvdYcTpKX9gOb_sgPPeUjPVE2GZ73nZJlNoVq7UVorw-uyaKsKw8vKmPQOi5CfoNLA5hfiyEe6Z4rkSJ8ZXlNliwXW2nI-iGanw3PGsEVq8v-k_2ilXlaNxUflbVTLGcd4D-NntHQovBjNwnnQzBDOauKT1zx7Q22zyYrZlqAI1qBrELTninUoP_rNKZiee8l7txHLhaUVF1BmhYCR5jiNkQAlWRMxbz_gwrnKt9ZFktwM5uEtCOAHQ1k6ny1oE"/>
+<img class="size-6 rounded-full border border-background-dark object-cover" data-alt="Japan Flag" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAM6qUJ-nTusYSGFWr7UZz0yXdmlLQ-cVXlaCX1tXwA9RVTQPvoVzezAjGi9GKmN0a4JdXuA-elT8VFxirCjcJ8LGwWzux7EO9WXOvMssM4SeRr0YRdk8iBTN_o8Bq6czsWcOmc7_D29SUsjnxkvlsuouqdyUZeCPufdi3x72YBb8vm4g39AkVmlvdB5l139Hgkmp72xveZgPOmO1gOrOo6AwlHev_f2K0W9pKapLrWF4qD5x-aM6CfGYZ6mPme2hABT8uMg9rssKMB"/>
+</div>
+<div>
+<div class="text-sm font-bold text-white">USD / JPY</div>
+<div class="text-[10px] text-slate-500">Japanese Yen</div>
+</div>
+</div>
+<div class="text-right">
+<div class="text-sm font-bold text-white">149.82</div>
+<div class="text-xs text-red-400">-0.12%</div>
+</div>
+</div>
+<div class="p-4 flex items-center justify-between hover:bg-white/5 cursor-pointer transition-colors">
+<div class="flex items-center gap-3">
+<div class="flex -space-x-2">
+<img class="size-6 rounded-full border border-background-dark object-cover" data-alt="EU Flag" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBIy459iEf7K3Ip-2MmnzybgGsDc7e52UvCwT2wr5ev8TCd-3G30MC_jialXyq5-Mee4ADbszjAClSsRp-U47Z4AyL9_8Jq09qrBIg4nozVWWL5VlDGBa9JAvg7aKGm2QM17s7cpg7q9E2L9ywfACFl5qTgQid3XrFMsSI43AKxSJBnDRHFSnetaJfNkNP5Sguw3uDSuzTIMeX8wxsX3IX5Von87FyrNa_bosN0X0j879fkQmJWEgOwzsrSpngnliXtPpnRuHRGNRl_"/>
+<img class="size-6 rounded-full border border-background-dark object-cover" data-alt="UK Flag" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBS4XAeYsF-a1yzG4bO7Jvjj8HHni4K1S2-TGKf6y9GCJQOC7kPtfpi5fD-aERbaD90lNwx_n5RWZaBdftx_FwsynuArZerJBqlxz29biQFyOeClGBbKSs5SIcYW5EmI2Dh6Lvm3gLBimLkbVDXe1z37l6tvtRMHcg5AssH1wnYp9rkZGAK5xe2SRiZILvYoyq3h3j24kEDn7J0c3S5gpyffz7j2fQZ5onMo7vkzHj4hpOKFodunEjQnx37s2X7Gjk-jWCq202puUcj"/>
+</div>
+<div>
+<div class="text-sm font-bold text-white">EUR / GBP</div>
+<div class="text-[10px] text-slate-500">Euro / Pound</div>
+</div>
+</div>
+<div class="text-right">
+<div class="text-sm font-bold text-white">0.8692</div>
+<div class="text-xs text-slate-400">0.00%</div>
+</div>
+</div>
+</div>
+<button class="w-full p-3 text-xs font-bold text-primary hover:bg-primary/10 transition-colors">View All Markets</button>
+</div>
+<!-- Alert/Tool Widget -->
+<div class="bg-primary/10 border border-primary/20 p-6 rounded-xl relative group overflow-hidden">
+<div class="relative z-10">
+<span class="material-symbols-outlined text-primary mb-2">notifications_active</span>
+<h4 class="font-bold text-white text-lg leading-tight mb-2">Set Rate Alert</h4>
+<p class="text-sm text-slate-400 mb-4">Get notified instantly when USD/EUR hits your target price.</p>
+<button class="w-full bg-primary text-background-dark font-bold py-2 rounded-lg text-sm">Create Alert</button>
+</div>
+<span class="material-symbols-outlined absolute -bottom-4 -right-4 text-7xl text-primary/10 -rotate-12">alarm</span>
+</div>
+<!-- Volatility Gauge -->
+<div class="bg-card-dark border border-border-dark p-6 rounded-xl">
+<h3 class="font-bold text-white text-sm mb-4">Market Volatility Index</h3>
+<div class="relative h-2 w-full bg-slate-800 rounded-full overflow-hidden mb-2">
+<div class="absolute top-0 left-0 h-full bg-gradient-to-r from-primary to-yellow-400" style="width: 72%"></div>
+</div>
+<div class="flex justify-between text-[10px] text-slate-500 font-bold uppercase tracking-widest">
+<span>Low</span>
+<span class="text-yellow-400">High (72%)</span>
+<span>Extreme</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Conversion Table Section -->
+<section class="mt-16">
+<h3 class="text-2xl font-bold text-white mb-6">Convert USD to Popular Currencies</h3>
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+<div class="bg-card-dark border border-border-dark p-4 rounded-xl flex items-center justify-between">
+<div>
+<div class="text-xs text-slate-400 font-bold">1 USD to CAD</div>
+<div class="text-lg font-bold text-white">1.3852 <span class="text-xs text-slate-500">CAD</span></div>
+</div>
+<span class="material-symbols-outlined text-primary/40">arrow_forward_ios</span>
+</div>
+<div class="bg-card-dark border border-border-dark p-4 rounded-xl flex items-center justify-between">
+<div>
+<div class="text-xs text-slate-400 font-bold">1 USD to AUD</div>
+<div class="text-lg font-bold text-white">1.5794 <span class="text-xs text-slate-500">AUD</span></div>
+</div>
+<span class="material-symbols-outlined text-primary/40">arrow_forward_ios</span>
+</div>
+<div class="bg-card-dark border border-border-dark p-4 rounded-xl flex items-center justify-between">
+<div>
+<div class="text-xs text-slate-400 font-bold">1 USD to CHF</div>
+<div class="text-lg font-bold text-white">0.8931 <span class="text-xs text-slate-500">CHF</span></div>
+</div>
+<span class="material-symbols-outlined text-primary/40">arrow_forward_ios</span>
+</div>
+<div class="bg-card-dark border border-border-dark p-4 rounded-xl flex items-center justify-between">
+<div>
+<div class="text-xs text-slate-400 font-bold">1 USD to SGD</div>
+<div class="text-lg font-bold text-white">1.3650 <span class="text-xs text-slate-500">SGD</span></div>
+</div>
+<span class="material-symbols-outlined text-primary/40">arrow_forward_ios</span>
+</div>
+</div>
+</section>
+</main>
+<footer class="mt-20 border-t border-border-dark bg-background-dark py-12">
+<div class="max-w-[1200px] mx-auto px-6">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-10">
+<div class="col-span-1 md:col-span-2">
+<div class="flex items-center gap-2 text-primary mb-6">
+<span class="material-symbols-outlined text-3xl">currency_exchange</span>
+<h2 class="text-white text-xl font-extrabold tracking-tight">Forex<span class="text-primary">Flow</span></h2>
+</div>
+<p class="text-slate-400 text-sm max-w-sm mb-6 leading-relaxed">
+                        ForexFlow provides real-time market data, professional-grade currency conversion, and advanced trading tools for investors and businesses worldwide.
+                    </p>
+<div class="flex gap-4">
+<a class="size-8 rounded-lg bg-card-dark flex items-center justify-center text-slate-400 hover:text-primary transition-colors border border-border-dark" href="#">
+<span class="material-symbols-outlined text-sm">public</span>
+</a>
+<a class="size-8 rounded-lg bg-card-dark flex items-center justify-center text-slate-400 hover:text-primary transition-colors border border-border-dark" href="#">
+<span class="material-symbols-outlined text-sm">mail</span>
+</a>
+</div>
+</div>
+<div>
+<h4 class="text-white font-bold mb-6">Resources</h4>
+<ul class="space-y-4 text-sm text-slate-400">
+<li><a class="hover:text-primary transition-colors" href="#">Currency API</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Market Analysis</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Trading Guides</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Historical Data</a></li>
+</ul>
+</div>
+<div>
+<h4 class="text-white font-bold mb-6">Legal</h4>
+<ul class="space-y-4 text-sm text-slate-400">
+<li><a class="hover:text-primary transition-colors" href="#">Privacy Policy</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Terms of Service</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Cookie Policy</a></li>
+<li><a class="hover:text-primary transition-colors" href="#">Compliance</a></li>
+</ul>
+</div>
+</div>
+<div class="mt-12 pt-8 border-t border-border-dark/50 flex flex-col md:flex-row justify-between items-center gap-6">
+<p class="text-xs text-slate-500">© 2023 ForexFlow Interactive. All market data is delayed by 15 minutes unless otherwise stated.</p>
+<div class="flex items-center gap-4 grayscale opacity-50">
+<span class="text-[10px] font-bold text-slate-500 uppercase">Trusted By</span>
+<span class="text-lg font-black text-white italic">FINTECH</span>
+<span class="text-lg font-black text-white italic">GLOBAL</span>
+</div>
+</div>
+</div>
+</footer>
+</body></html>

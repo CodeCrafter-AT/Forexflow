@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>FXPro | Advanced Analytics &amp; Charts</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&amp;family=Manrope:wght@400;600;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        "primary": "#10b981",
+                        "accent": "#3b82f6",
+                        "comparison": "#f59e0b",
+                        "background-dark": "#09090b",
+                        "card-dark": "#121214",
+                        "border-dark": "#27272a",
+                    },
+                    fontFamily: {
+                        "sans": ["Inter", "sans-serif"],
+                        "display": ["Manrope", "sans-serif"]
+                    },
+                },
+            },
+        }
+    </script>
+<style type="text/tailwindcss">
+        @layer base {
+            body { @apply bg-background-dark text-slate-200 font-sans antialiased overflow-hidden h-screen flex flex-col; }
+        }
+        .chart-grid {
+            background-image: radial-gradient(circle at 1px 1px, #27272a 1px, transparent 0);
+            background-size: 40px 40px;
+        }
+        .tabular-nums { font-variant-numeric: tabular-nums; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #3f3f46; border-radius: 10px; }
+        .custom-tooltip {
+            @apply absolute pointer-events-none bg-card-dark/95 border border-border-dark p-3 rounded-lg shadow-2xl backdrop-blur-md z-50;
+        }
+        .dropdown-menu {
+            @apply absolute right-0 top-full mt-1 bg-card-dark border border-border-dark rounded-lg shadow-2xl z-50 hidden group-hover:block min-w-[160px] py-1;
+        }
+    </style>
+</head>
+<body class="min-h-screen">
+<header class="border-b border-border-dark bg-card-dark/80 backdrop-blur-md z-50 shrink-0">
+<div class="w-full px-4 h-14 flex items-center justify-between gap-8">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2.5">
+<div class="bg-primary/20 p-1.5 rounded-md border border-primary/30">
+<span class="material-symbols-outlined text-primary text-xl font-bold">analytics</span>
+</div>
+<h1 class="text-lg font-bold tracking-tight text-white font-display">FX<span class="text-primary font-extrabold">CHART</span></h1>
+</div>
+<nav class="flex items-center gap-1">
+<a class="px-3 py-1.5 text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 rounded-md transition-all" href="#">Dashboard</a>
+<a class="px-3 py-1.5 text-xs font-semibold text-white bg-white/10 rounded-md" href="#">Historical Analysis</a>
+<a class="px-3 py-1.5 text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 rounded-md transition-all" href="#">Signals</a>
+<a class="px-3 py-1.5 text-xs font-semibold text-slate-400 hover:text-white hover:bg-white/5 rounded-md transition-all" href="#">Tools</a>
+</nav>
+</div>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-2 bg-background-dark/50 border border-border-dark px-3 py-1.5 rounded-md">
+<span class="w-2 h-2 rounded-full bg-primary animate-pulse shadow-[0_0_8px_rgba(16,185,129,0.5)]"></span>
+<span class="text-[10px] font-bold uppercase tracking-wider text-slate-300">Live Connection: 12ms</span>
+</div>
+<div class="flex items-center gap-2 pl-2 border-l border-border-dark">
+<div class="w-8 h-8 rounded-full bg-slate-800 border border-border-dark flex items-center justify-center text-[10px] font-bold text-white">JD</div>
+</div>
+</div>
+</div>
+</header>
+<main class="flex-1 flex flex-col min-h-0 overflow-hidden">
+<div class="bg-card-dark border-b border-border-dark px-4 py-3 flex items-center justify-between gap-4 shrink-0">
+<div class="flex items-center gap-4">
+<div class="relative group">
+<button class="flex items-center gap-3 bg-background-dark border border-border-dark px-3 py-1.5 rounded-md hover:border-slate-500 transition-all text-xs font-bold min-w-[140px]">
+<div class="flex -space-x-1.5">
+<div class="w-5 h-5 rounded-full bg-blue-600 border border-card-dark flex items-center justify-center text-[7px]">€</div>
+<div class="w-5 h-5 rounded-full bg-green-600 border border-card-dark flex items-center justify-center text-[7px]">$</div>
+</div>
+<span>EUR / USD</span>
+<span class="material-symbols-outlined ml-auto text-slate-500 text-sm">expand_more</span>
+</button>
+</div>
+<div class="relative group">
+<button class="flex items-center gap-2 bg-background-dark border border-dashed border-slate-600 px-3 py-1.5 rounded-md hover:border-accent hover:bg-accent/5 transition-all text-xs font-bold text-slate-400 hover:text-accent">
+<span class="material-symbols-outlined text-sm">add_circle</span>
+                    Compare
+                </button>
+<div class="dropdown-menu !left-0 !right-auto w-64 p-2">
+<div class="px-2 py-1.5 mb-1">
+<p class="text-[10px] font-bold text-slate-500 uppercase">Overlay Pair</p>
+</div>
+<div class="space-y-1">
+<button class="w-full flex items-center justify-between p-2 rounded hover:bg-white/5 text-xs text-left">
+<span class="flex items-center gap-2 font-medium"><span class="text-comparison">●</span> GBP / USD</span>
+<span class="text-[10px] text-slate-500">Major</span>
+</button>
+<button class="w-full flex items-center justify-between p-2 rounded hover:bg-white/5 text-xs text-left">
+<span class="flex items-center gap-2 font-medium"><span class="text-comparison">●</span> USD / JPY</span>
+<span class="text-[10px] text-slate-500">Major</span>
+</button>
+<button class="w-full flex items-center justify-between p-2 rounded hover:bg-white/5 text-xs text-left">
+<span class="flex items-center gap-2 font-medium"><span class="text-comparison">●</span> BTC / USD</span>
+<span class="text-[10px] text-slate-500">Crypto</span>
+</button>
+</div>
+</div>
+</div>
+<div class="h-6 w-px bg-border-dark"></div>
+<div class="flex items-center gap-1 bg-background-dark border border-border-dark p-1 rounded-md">
+<button class="px-2.5 py-1 text-[10px] font-bold rounded hover:bg-white/5 text-slate-400">5M</button>
+<button class="px-2.5 py-1 text-[10px] font-bold rounded hover:bg-white/5 text-slate-400">15M</button>
+<button class="px-2.5 py-1 text-[10px] font-bold rounded hover:bg-white/5 text-slate-400">1H</button>
+<button class="px-2.5 py-1 text-[10px] font-bold rounded bg-white/10 text-white">1D</button>
+<button class="px-2.5 py-1 text-[10px] font-bold rounded hover:bg-white/5 text-slate-400">1W</button>
+</div>
+<div class="flex items-center gap-1 bg-background-dark border border-border-dark p-1 rounded-md">
+<button class="p-1 rounded bg-white/10 text-primary">
+<span class="material-symbols-outlined text-base">show_chart</span>
+</button>
+<button class="p-1 rounded text-slate-500 hover:text-slate-200">
+<span class="material-symbols-outlined text-base">candlestick_chart</span>
+</button>
+</div>
+</div>
+<div class="flex items-center gap-3">
+<div class="text-right mr-4">
+<div class="text-sm font-bold text-white tabular-nums">1.08420 <span class="text-primary text-[10px] ml-1">+0.12%</span></div>
+<div class="text-[9px] text-slate-500 uppercase tracking-widest font-bold">Real-time Spot</div>
+</div>
+<div class="relative group">
+<button class="bg-white text-background-dark px-3 py-1.5 rounded-md text-[11px] font-bold hover:bg-slate-200 transition-colors flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">download</span>
+                    Export
+                    <span class="material-symbols-outlined text-sm">expand_more</span>
+</button>
+<div class="dropdown-menu">
+<button class="w-full flex items-center gap-3 px-4 py-2 text-[11px] font-semibold text-slate-300 hover:bg-white/5 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-sm">table_rows</span>
+                        Export to CSV
+                    </button>
+<button class="w-full flex items-center gap-3 px-4 py-2 text-[11px] font-semibold text-slate-300 hover:bg-white/5 hover:text-white transition-colors">
+<span class="material-symbols-outlined text-sm">image</span>
+                        Save as PNG
+                    </button>
+<button class="w-full flex items-center gap-3 px-4 py-2 text-[11px] font-semibold text-slate-300 hover:bg-white/5 hover:text-white transition-colors border-t border-border-dark">
+<span class="material-symbols-outlined text-sm">print</span>
+                        Print View
+                    </button>
+</div>
+</div>
+</div>
+</div>
+<div class="flex-1 relative flex flex-col bg-background-dark chart-grid">
+<div class="custom-tooltip top-[30%] left-[65%]">
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between gap-6">
+<span class="text-[10px] text-slate-400 font-bold uppercase">Nov 04, 14:00</span>
+<span class="px-1.5 py-0.5 bg-white/5 rounded text-[10px] text-slate-400">UTC-5</span>
+</div>
+<div class="h-px bg-border-dark w-full my-1"></div>
+<div class="flex flex-col gap-1.5">
+<div class="flex items-center justify-between gap-8">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-primary"></div>
+<span class="text-xs font-medium text-slate-300">EUR/USD</span>
+</div>
+<span class="text-sm font-bold text-white tabular-nums">1.08250</span>
+</div>
+<div class="flex items-center justify-between gap-8">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-comparison"></div>
+<span class="text-xs font-medium text-slate-300">GBP/USD</span>
+</div>
+<span class="text-sm font-bold text-white tabular-nums">1.23842</span>
+</div>
+</div>
+</div>
+</div>
+<div class="absolute inset-0 pointer-events-none">
+<div class="absolute left-[65%] top-0 bottom-0 w-px bg-slate-500/30 border-l border-dashed border-slate-500/20"></div>
+<div class="absolute top-[30%] left-0 right-0 h-px bg-slate-500/30 border-t border-dashed border-slate-500/20"></div>
+<div class="absolute left-[65.5%] top-[25%] bg-accent text-white text-[10px] font-bold px-1.5 py-0.5 rounded">1.08250</div>
+<div class="absolute left-[65.5%] bottom-[5%] bg-border-dark text-slate-300 text-[10px] font-bold px-1.5 py-0.5 rounded border border-border-dark">Nov 04</div>
+</div>
+<div class="flex-1 w-full px-12 py-8 relative">
+<svg class="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 1000 500">
+<defs>
+<linearGradient id="primaryGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#10b981" stop-opacity="0.15"></stop>
+<stop offset="100%" stop-color="#10b981" stop-opacity="0"></stop>
+</linearGradient>
+<linearGradient id="comparisonGradient" x1="0" x2="0" y1="0" y2="1">
+<stop offset="0%" stop-color="#f59e0b" stop-opacity="0.1"></stop>
+<stop offset="100%" stop-color="#f59e0b" stop-opacity="0"></stop>
+</linearGradient>
+</defs>
+<path d="M0,400 L100,380 L200,390 L300,350 L400,370 L500,320 L600,310 L700,280 L800,290 L900,250 L1000,230" fill="none" opacity="0.6" stroke="#f59e0b" stroke-dasharray="6,4" stroke-linecap="round" stroke-width="2"></path>
+<path class="transition-all duration-700" d="M0,450 L100,420 L200,440 L300,380 L400,400 L500,320 L600,340 L700,260 L800,280 L900,220 L1000,200 L1000,500 L0,500 Z" fill="url(#primaryGradient)"></path>
+<path d="M0,450 L100,420 L200,440 L300,380 L400,400 L500,320 L600,340 L700,260 L800,280 L900,220 L1000,200" fill="none" stroke="#10b981" stroke-linecap="round" stroke-linejoin="round" stroke-width="3"></path>
+<circle cx="650" cy="300" fill="#10b981" r="5" stroke="#09090b" stroke-width="2"></circle>
+</svg>
+</div>
+<div class="h-8 border-t border-border-dark bg-card-dark/50 flex items-center justify-between px-12 text-[10px] font-bold text-slate-500 uppercase tracking-widest shrink-0">
+<span>26 Oct</span>
+<span>28 Oct</span>
+<span>30 Oct</span>
+<span>01 Nov</span>
+<span>03 Nov</span>
+<span class="text-primary">Today</span>
+</div>
+</div>
+<div class="h-[240px] border-t border-border-dark bg-card-dark overflow-hidden flex flex-col shrink-0">
+<div class="px-4 py-2 bg-background-dark/50 border-b border-border-dark flex items-center justify-between">
+<h3 class="text-[11px] font-black uppercase tracking-widest text-slate-400">Historical Daily Rates</h3>
+<div class="flex items-center gap-4">
+<div class="flex items-center gap-4 text-[10px] font-bold text-slate-500">
+<span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-primary"></span> EUR/USD</span>
+<span class="flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full bg-comparison"></span> GBP/USD</span>
+</div>
+<div class="h-4 w-px bg-border-dark"></div>
+<button class="text-[10px] font-bold text-accent hover:underline">View Full History</button>
+</div>
+</div>
+<div class="flex-1 overflow-auto">
+<table class="w-full text-left text-[12px] border-collapse">
+<thead class="sticky top-0 bg-card-dark z-10 shadow-sm">
+<tr class="text-[10px] font-bold uppercase tracking-widest text-slate-500 border-b border-border-dark">
+<th class="px-6 py-3 font-extrabold">Date</th>
+<th class="px-6 py-3 font-extrabold">EUR/USD Open</th>
+<th class="px-6 py-3 font-extrabold">High</th>
+<th class="px-6 py-3 font-extrabold">Low</th>
+<th class="px-6 py-3 font-extrabold">Close</th>
+<th class="px-6 py-3 font-extrabold">GBP/USD Close</th>
+<th class="px-6 py-3 font-extrabold text-right">Vol</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-border-dark/30">
+<tr class="hover:bg-white/[0.02] transition-colors group">
+<td class="px-6 py-2.5 text-slate-300 font-medium">Nov 03, 2023</td>
+<td class="px-6 py-2.5 text-slate-400 tabular-nums">1.0821</td>
+<td class="px-6 py-2.5 text-slate-400 tabular-nums">1.0855</td>
+<td class="px-6 py-2.5 text-slate-400 tabular-nums">1.0810</td>
+<td class="px-6 py-2.5 text-primary font-bold tabular-nums">1.0842</td>
+<td class="px-6 py-2.5 text-comparison font-bold tabular-nums">1.2381</td>
+<td class="px-6 py-2.5 text-right text-slate-500 tabular-nums">142.4M</td>
+</tr>
+<tr class="hover:bg-white/[0.02] transition-colors group bg-white/[0.01]">
+<td class="px-6 py-2.5 text-slate-300 font-medium">Nov 02, 2023</td>
+<td class="px-6 py-2.5 text-slate-400 tabular-nums">1.0845</td>
+<td class="px-6 py-2.5 text-slate-400 tabular-nums">1.0872</td>
+<td class="px-6 py-2.5 text-slate-400 tabular-nums">1.0832</td>
+<td class="px-6 py-2.5 text-red-400 font-bold tabular-nums">1.0838</td>
+<td class="px-6 py-2.5 text-comparison font-bold tabular-nums">1.2345</td>
+<td class="px-6 py-2.5 text-right text-slate-500 tabular-nums">98.2M</td>
+</tr>
+<tr class="hover:bg-white/[0.02] transition-colors group">
+<td class="px-6 py-2.5 text-slate-300 font-medium">Nov 01, 2023</td>
+<td class="px-6 py-2.5 text-slate-400 tabular-nums">1.0802</td>
+<td class="px-6 py-2.5 text-slate-400 tabular-nums">1.0848</td>
+<td class="px-6 py-2.5 text-slate-400 tabular-nums">1.0795</td>
+<td class="px-6 py-2.5 text-primary font-bold tabular-nums">1.0845</td>
+<td class="px-6 py-2.5 text-comparison font-bold tabular-nums">1.2402</td>
+<td class="px-6 py-2.5 text-right text-slate-500 tabular-nums">115.7M</td>
+</tr>
+<tr class="hover:bg-white/[0.02] transition-colors group bg-white/[0.01]">
+<td class="px-6 py-2.5 text-slate-300 font-medium">Oct 31, 2023</td>
+<td class="px-6 py-2.5 text-slate-400 tabular-nums">1.0780</td>
+<td class="px-6 py-2.5 text-slate-400 tabular-nums">1.0815</td>
+<td class="px-6 py-2.5 text-slate-400 tabular-nums">1.0770</td>
+<td class="px-6 py-2.5 text-primary font-bold tabular-nums">1.0802</td>
+<td class="px-6 py-2.5 text-comparison font-bold tabular-nums">1.2290</td>
+<td class="px-6 py-2.5 text-right text-slate-500 tabular-nums">84.1M</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</main>
+<footer class="border-t border-border-dark bg-card-dark/80 px-4 h-8 flex items-center justify-between text-[10px] font-bold uppercase tracking-widest text-slate-500 shrink-0">
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<span class="w-1.5 h-1.5 rounded-full bg-primary shadow-[0_0_4px_rgba(16,185,129,0.5)]"></span>
+            System Operational
+        </div>
+<div class="hidden sm:block">Ticker Frequency: 150ms</div>
+</div>
+<div class="flex items-center gap-6">
+<span class="hidden sm:inline">© 2024 FX-PRO ANALYTICS ENGINE</span>
+<span class="flex items-center gap-1.5 text-primary">
+<span class="material-symbols-outlined text-[12px]">public</span>
+            London Market: Open
+        </span>
+</div>
+</footer>
+
+</body></html>
