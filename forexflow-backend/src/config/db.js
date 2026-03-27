@@ -15,7 +15,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
                 id INTEGER PRIMARY KEY AUTOINCREMENT,
                 username TEXT UNIQUE NOT NULL,
                 password TEXT NOT NULL,
-                balance REAL DEFAULT 1000000.0,
+                balance REAL DEFAULT 100000.0,
                 leverage INTEGER DEFAULT 500,
                 created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
                 active_base TEXT DEFAULT 'EUR',
@@ -31,7 +31,7 @@ const db = new sqlite3.Database(dbPath, (err) => {
                 // Initialize default user if not exists
                 db.get(`SELECT id FROM users WHERE username = 'trader1'`, (err, row) => {
                     if (!row) {
-                        db.run(`INSERT INTO users (username, password, balance) VALUES ('trader1', 'dummy', 1000000.0)`);
+                        db.run(`INSERT INTO users (username, password, balance) VALUES ('trader1', 'dummy', 100000.0)`);
                     }
                 });
             });

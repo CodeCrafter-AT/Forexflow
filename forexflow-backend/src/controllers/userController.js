@@ -41,9 +41,9 @@ exports.resetAccount = (req, res) => {
         if (err) return res.status(500).json({ error: err.message });
         if (!user) return res.status(404).json({ error: 'User not found' });
         
-        UserModel.updateUserBalance(user.id, 1000000, (err) => {
+        UserModel.updateUserBalance(user.id, 100000, (err) => {
             if (err) return res.status(500).json({ error: err.message });
-            res.json({ success: true, newBalance: 1000000 });
+            res.json({ success: true, newBalance: 100000 });
         });
     });
 };

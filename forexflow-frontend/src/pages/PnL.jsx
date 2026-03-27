@@ -1,5 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { createChart, LineSeries } from 'lightweight-charts';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { usePortfolio } from '../context/PortfolioContext';
 import Sidebar from '../components/Sidebar';
@@ -26,46 +25,6 @@ const PnL = () => {
     // Derived Aggregates
     const actualProfits = closedTrades.filter(t => t.pnl > 0).reduce((sum, t) => sum + t.pnl, 0);
     const actualLosses = closedTrades.filter(t => t.pnl <= 0).reduce((sum, t) => sum + Math.abs(t.pnl || 0), 0);
-
-    const chartContainerRef = useRef(null);
-    const chartRef = useRef(null);
-
-    useEffect(() => {
-        if (!chartContainerRef.current || closedTrades.length === 0 || !stats) return;
-        
-        if (!chartRef.current) {
-            const chart = createChart(chartContainerRef.current, {
-                layout: { background: { type: 'solid', color: 'transparent' }, textColor: '#cbd5e1', fontFamily: 'Inter, sans-serif' },
-                grid: { vertLines: { visible: false }, horzLines: { color: 'rgba(255, 255, 255, 0.05)' } },
-                rightPriceScale: { borderVisible: false },
-                timeScale: { borderVisible: false, timeVisible: true, secondsVisible: false },
-                height: 280,
-            });
-            chartRef.current = chart;
-            
-            const lineSeries = chart.addSeries(LineSeries, {
-                color: '#6366f1', lineWidth: 3,
-                crosshairMarkerVisible: true, crosshairMarkerRadius: 6,
-                crosshairMarkerBorderColor: '#000000', crosshairMarkerBackgroundColor: '#6366f1',
-            });
-
-            // Reconstruct Equity Curve Chronologically
-            let runningEquity = stats.balance - stats.netPnl;
-            const chronological = [...closedTrades].reverse();
-            // Start plotting times staggered so it aligns historically prior to current time
-            let baseTime = Math.floor(Date.now() / 1000) - (chronological.length * 3600); 
-            
-            const data = [{ time: baseTime, value: runningEquity }];
-            chronological.forEach(trade => {
-                baseTime += 3600;
-                runningEquity += trade.pnl || 0;
-                data.push({ time: baseTime, value: runningEquity });
-            });
-            
-            lineSeries.setData(data);
-            chart.timeScale().fitContent();
-        }
-    }, [closedTrades, stats]);
 
     return (
         <div className="flex h-screen overflow-hidden bg-[#050505] text-slate-200 font-sans antialiased selection:bg-[#6366f1]/30">
@@ -111,26 +70,6 @@ const PnL = () => {
                         <p className="text-[9px] text-slate-500 font-black uppercase tracking-widest relative z-10">Total Trades Taken</p>
                         <p className="text-2xl text-white font-black mt-2 italic tracking-tighter relative z-10">{closedTrades.length}</p>
                     </motion.div>
-                </motion.div>
-
-                {/* Section: Equity Growth Chart */}
-                <motion.div 
-                    initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }}
-                    className="p-8 bg-gradient-to-b from-white/[0.02] to-transparent border border-white/10 rounded-[30px] flex flex-col gap-6 shadow-2xl backdrop-blur-xl relative overflow-hidden"
-                >
-                    <div className="flex justify-between items-center mb-2">
-                        <h2 className="text-xl font-black text-white uppercase tracking-widest italic flex items-center gap-2">
-                            Account Equity Growth
-                        </h2>
-                        <span className="text-[10px] text-indigo-400 border border-indigo-500/30 bg-indigo-500/10 px-3 py-1 rounded-full font-bold tracking-widest uppercase">Performance Curve</span>
-                    </div>
-                    {closedTrades.length > 0 ? (
-                        <div ref={chartContainerRef} className="w-full h-[280px]"></div>
-                    ) : (
-                        <div className="h-[280px] flex items-center justify-center border border-dashed border-white/10 rounded-2xl bg-black/20">
-                            <p className="text-slate-500 font-medium tracking-wide">Execute trades to begin plotting your equity curve.</p>
-                        </div>
-                    )}
                 </motion.div>
 
                 {/* Section: Live Active Positions */}
