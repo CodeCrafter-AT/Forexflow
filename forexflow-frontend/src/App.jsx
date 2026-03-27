@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { PortfolioProvider, usePortfolio } from './context/PortfolioContext';
+import GlobalRiskWatcher from './components/GlobalRiskWatcher';
 
 // Pages
 import CurrencyConverter from './pages/CurrencyConverter';
@@ -32,6 +33,7 @@ const AuthBarrier = () => {
 const App = () => {
   return (
     <PortfolioProvider>
+      <GlobalRiskWatcher />
       <BrowserRouter>
         <Routes>
           <Route path="/login" element={<AuthBarrier />} />
