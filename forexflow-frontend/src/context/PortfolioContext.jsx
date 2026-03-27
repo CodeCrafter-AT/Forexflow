@@ -18,9 +18,12 @@ export function PortfolioProvider({ children }) {
   const [activeSymbol, setActiveSymbolState] = useState({ base: 'EUR', target: 'USD' });
   const [isLoaded, setIsLoaded] = useState(false);
 
+  // Base URL for backend API (from Vite .env or Vercel Environment Variables)
+  const API_BASE = import.meta.env.VITE_API_URL || '';
+
   // Authentication Flow
   const authenticate = async (mode, username, password) => {
-    const res = await fetch(`/api/auth/${mode}`, {
+    const res = await fetch(`${API_BASE}/api/auth/${mode}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
@@ -47,7 +50,7 @@ export function PortfolioProvider({ children }) {
 
   // Safe fetch helper handling Bearer headers automatically
   const authFetch = useCallback((url, options = {}) => {
-    return fetch(url, {
+    return fetch(`${API_BASE}${url}`, {
       ...options,
       headers: {
         'Content-Type': 'application/json',
