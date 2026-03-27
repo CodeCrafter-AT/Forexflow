@@ -13,7 +13,7 @@ Because this is a completely fresh repository with a clean history and a `.gitig
 3. Run the following commands to link your local code to your new remote GitHub repo:
 
 ```bash
-git remote add origin https://github.com/<YOUR_GITHUB_USERNAME>/forexflow.git
+git remote add origin https://github.com/<Code_crafter_at>/forexflow.git
 git branch -M main
 git push -u origin main
 ```
