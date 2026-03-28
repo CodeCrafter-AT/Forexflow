@@ -83,21 +83,21 @@ const HistoricalAnalysis = () => {
             if (trade.status !== 'OPEN') return;
             
             const isBuy = trade.type === 'BUY';
-            const tpPrice = trade.takeProfit || trade.take_profit;
-            const slPrice = trade.stopLoss || trade.stop_loss;
+            const tpPrice = parseFloat(trade.takeProfit || trade.take_profit);
+            const slPrice = parseFloat(trade.stopLoss || trade.stop_loss);
             
             // To close a BUY trade, you sell at the BID price.
             // To close a SELL trade, you buy at the ASK price.
             const exitPrice = isBuy ? prices.bid : prices.ask;
 
-            if (tpPrice && tpPrice > 0) {
+            if (!isNaN(tpPrice) && tpPrice > 0) {
                 if ((isBuy && exitPrice >= tpPrice) || (!isBuy && exitPrice <= tpPrice)) {
                     console.log(`[Auto-Liquidation] T/P triggered for ${trade.id} at ${exitPrice}`);
                     closeOpenTrade(trade.id, exitPrice);
                     return;
                 }
             }
-            if (slPrice && slPrice > 0) {
+            if (!isNaN(slPrice) && slPrice > 0) {
                 if ((isBuy && exitPrice <= slPrice) || (!isBuy && exitPrice >= slPrice)) {
                     console.log(`[Auto-Liquidation] S/L triggered for ${trade.id} at ${exitPrice}`);
                     closeOpenTrade(trade.id, exitPrice);
@@ -198,74 +198,93 @@ const HistoricalAnalysis = () => {
     useEffect(() => {
         if (!seriesRef.current) return;
         
-        // Clear old price lines
-        priceLinesRef.current.forEach(line => seriesRef.current.removePriceLine(line));
-        priceLinesRef.current = [];
+        try {
+            // Clear old price lines
+            priceLinesRef.current.forEach(line => seriesRef.current.removePriceLine(line));
+            priceLinesRef.current = [];
 
-        // Find active trades
-        const openTrades = tradeHistory.filter(t => t.status === 'OPEN' && t.pair === `${activeSymbol.base}/${activeSymbol.target}`);
-        
-        openTrades.forEach(trade => {
-            // Draw Entry Line
-            const entryLine = seriesRef.current.createPriceLine({
-                price: trade.entry,
-                color: '#00FF88',
-                lineWidth: 2,
-                lineStyle: 0,
-                axisLabelVisible: true,
-                title: `${trade.type} ENTRY`,
-            });
-            priceLinesRef.current.push(entryLine);
+            // Find active trades
+            const openTrades = tradeHistory.filter(t => t.status === 'OPEN' && t.pair === `${activeSymbol.base}/${activeSymbol.target}`);
+            
+            openTrades.forEach(trade => {
+                const entryPrice = parseFloat(trade.entry);
+                if (isNaN(entryPrice)) return;
 
-            const pipMult = getPipMultiplier(activeSymbol.base, activeSymbol.target);
-            const takeProfitPrice = trade.takeProfit || trade.take_profit || (trade.type === 'BUY' ? trade.entry + (50 * pipMult) : trade.entry - (50 * pipMult));
-            const stopLossPrice = trade.stopLoss || trade.stop_loss || (trade.type === 'BUY' ? trade.entry - (30 * pipMult) : trade.entry + (30 * pipMult));
+                // Draw Entry Line
+                const entryLine = seriesRef.current.createPriceLine({
+                    price: entryPrice,
+                    color: '#00FF88',
+                    lineWidth: 2,
+                    lineStyle: 0,
+                    axisLabelVisible: true,
+                    title: `${trade.type} ENTRY`,
+                });
+                priceLinesRef.current.push(entryLine);
 
-            const tpLine = seriesRef.current.createPriceLine({
-                price: takeProfitPrice,
-                color: '#00FF88',
-                lineWidth: 1,
-                lineStyle: 1,
-                axisLabelVisible: true,
-                title: 'T/P (+50 PIP)',
-            });
-            priceLinesRef.current.push(tpLine);
+                const pipMult = getPipMultiplier(activeSymbol.base, activeSymbol.target);
+                let takeProfitPrice = parseFloat(trade.takeProfit || trade.take_profit);
+                if (isNaN(takeProfitPrice)) {
+                    takeProfitPrice = parseFloat(trade.type === 'BUY' ? entryPrice + (50 * pipMult) : entryPrice - (50 * pipMult));
+                }
 
-            const slLine = seriesRef.current.createPriceLine({
-                price: stopLossPrice,
-                color: '#ef4444',
-                lineWidth: 1,
-                lineStyle: 1,
-                axisLabelVisible: true,
-                title: 'S/L (-30 PIP)',
-            });
-            priceLinesRef.current.push(slLine);
-        });
+                let stopLossPrice = parseFloat(trade.stopLoss || trade.stop_loss);
+                if (isNaN(stopLossPrice)) {
+                    stopLossPrice = parseFloat(trade.type === 'BUY' ? entryPrice - (30 * pipMult) : entryPrice + (30 * pipMult));
+                }
 
-        // Support / Resistance bounds based on visible data
-        if (chartDataToUse.length > 0) {
-           const highPrices = chartDataToUse.map(d => d.high || d.value || d.close);
-           const lowPrices = chartDataToUse.map(d => d.low || d.value || d.close);
-           const localHighest = Math.max(...highPrices);
-           const localLowest = Math.min(...lowPrices);
-           
-           const resLine = seriesRef.current.createPriceLine({
-                price: localHighest,
-                color: '#3b82f6',
-                lineWidth: 1,
-                lineStyle: 2,
-                axisLabelVisible: true,
-                title: 'RESISTANCE',
+                if (!isNaN(takeProfitPrice)) {
+                    const tpLine = seriesRef.current.createPriceLine({
+                        price: takeProfitPrice,
+                        color: '#00FF88',
+                        lineWidth: 1,
+                        lineStyle: 1,
+                        axisLabelVisible: true,
+                        title: 'T/P (+50 PIP)',
+                    });
+                    priceLinesRef.current.push(tpLine);
+                }
+
+                if (!isNaN(stopLossPrice)) {
+                    const slLine = seriesRef.current.createPriceLine({
+                        price: stopLossPrice,
+                        color: '#ef4444',
+                        lineWidth: 1,
+                        lineStyle: 1,
+                        axisLabelVisible: true,
+                        title: 'S/L (-30 PIP)',
+                    });
+                    priceLinesRef.current.push(slLine);
+                }
             });
-            const supLine = seriesRef.current.createPriceLine({
-                price: localLowest,
-                color: '#8b5cf6',
-                lineWidth: 1,
-                lineStyle: 2,
-                axisLabelVisible: true,
-                title: 'SUPPORT',
-            });
-            priceLinesRef.current.push(resLine, supLine);
+
+            // Support / Resistance bounds based on visible data
+            if (chartDataToUse.length > 0) {
+               const highPrices = chartDataToUse.map(d => d.high || d.value || d.close);
+               const lowPrices = chartDataToUse.map(d => d.low || d.value || d.close);
+               const localHighest = Math.max(...highPrices);
+               const localLowest = Math.min(...lowPrices);
+               
+               const resLine = seriesRef.current.createPriceLine({
+                    price: localHighest,
+                    color: '#e2e8f0',
+                    lineWidth: 1,
+                    lineStyle: 2,
+                    axisLabelVisible: false,
+                    title: 'R / H',
+               });
+               
+               const supLine = seriesRef.current.createPriceLine({
+                    price: localLowest,
+                    color: '#e2e8f0',
+                    lineWidth: 1,
+                    lineStyle: 2,
+                    axisLabelVisible: false,
+                    title: 'S / L',
+               });
+               priceLinesRef.current.push(resLine, supLine);
+            }
+        } catch (e) {
+            console.warn('[Chart] creating price line failed', e);
         }
     }, [tradeHistory, activeSymbol, chartDataToUse]);
 
@@ -355,176 +374,100 @@ const HistoricalAnalysis = () => {
                     </div>
                 </header>
 
-                {/* Dashboard Grid */}
-                <div className="flex-1 overflow-y-auto p-6 lg:p-8" style={{ scrollbarWidth: 'thin' }}>
-                    <div className="max-w-[1600px] mx-auto grid grid-cols-1 xl:grid-cols-[1fr_350px] gap-6 xl:gap-8 items-start">
-                        
-                        {/* Left Column: Chart Area */}
-                        <div className="space-y-6">
-                            {/* Chart Container */}
-                            <div className="bg-[#0f0f13] border border-white/5 rounded-2xl p-1 shadow-2xl overflow-hidden flex flex-col h-[500px] lg:h-[600px]">
-                                {/* Chart Controls */}
-                                <div className="p-4 border-b border-white/5 flex flex-wrap items-center justify-between gap-4 bg-[#0a0a0c]/50">
-                                    <div className="flex items-center gap-2 bg-black/40 p-1 rounded-lg border border-white/5">
-                                        {['1W', '1M', '3M', '6M', '1Y'].map((tf) => (
-                                            <button
-                                                key={tf}
-                                                onClick={() => setTimeframe(tf)}
-                                                className={`px-4 py-1.5 text-xs font-bold rounded-md transition-all ${timeframe === tf ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'}`}
-                                            >
-                                                {tf}
-                                            </button>
-                                        ))}
-                                    </div>
-                                    <div className="flex items-center gap-2 bg-black/40 p-1 rounded-lg border border-white/5">
-                                        <button 
-                                            onClick={() => setChartType('line')}
-                                            className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all flex items-center gap-2 ${chartType === 'line' ? 'bg-slate-800 text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'}`}
-                                        >
-                                            <LineChart className="size-3.5" /> Line
-                                        </button>
-                                        <button 
-                                            onClick={() => setChartType('candle')}
-                                            className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all flex items-center gap-2 ${chartType === 'candle' ? 'bg-slate-800 text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-white/5'}`}
-                                        >
-                                            <Crosshair className="size-3.5" /> Candle
-                                        </button>
-                                    </div>
-                                </div>
-                                {/* The Actual Chart */}
-                                <div className="flex-1 relative w-full h-full bg-[#0a0a0c]/20">
-                                    {isLoading && (
-                                        <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#0f0f13]/80 backdrop-blur-sm">
-                                            <div className="flex flex-col items-center gap-3 text-indigo-400">
-                                                <RefreshCcw className="size-6 animate-spin" />
-                                                <span className="text-xs font-bold tracking-widest uppercase">Syncing Data Server...</span>
-                                            </div>
-                                        </div>
-                                    )}
-                                    {!isLive && ohlcData.length === 0 && (
-                                        <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#0f0f13]/80 backdrop-blur-sm text-center px-4">
-                                            <div className="flex flex-col items-center gap-3 text-amber-500 max-w-sm">
-                                                <span className="text-4xl">📡</span>
-                                                <span className="text-sm font-bold tracking-widest uppercase">Data Feed Offline / Rate Limited</span>
-                                                <p className="text-[10px] text-slate-400">TwelveData's Free Tier allows exactly 800 calls per day & 8 per minute. If you see this, wait one minute or check API limits.</p>
-                                            </div>
-                                        </div>
-                                    )}
-                                    <div ref={chartContainerRef} className="absolute inset-0" />
-                                </div>
-                            </div>
-                            
-                                {/* Bottom Stats Grid */}
-                                <div className="grid md:grid-cols-2 gap-6">
-                                    {/* Alpha Signal Card */}
-                                    <motion.div whileHover={{ y: -2 }} className="bg-[#0f0f13] border border-white/5 p-6 rounded-2xl shadow-xl">
-                                        <div className="flex items-center justify-between mb-4">
-                                            <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
-                                                <Target className="size-4" />
-                                                Active Signals
-                                            </h3>
-                                            <span className="px-2 py-0.5 bg-indigo-500/10 text-indigo-400 text-[10px] font-bold rounded border border-indigo-500/20">AI POWERED</span>
-                                        </div>
-                                        <div className="flex items-center justify-between">
-                                            <div>
-                                                <p className={`text-2xl font-black tracking-tight ${signal.color}`}>{signal.label}</p>
-                                                <p className="text-xs text-slate-500 mt-1">Based on 24h momentum</p>
-                                            </div>
-                                            <div className="size-16 rounded-full border-4 border-[#1c1c20] flex items-center justify-center relative">
-                                                <svg className="absolute inset-0 size-full -rotate-90">
-                                                    <circle cx="28" cy="28" r="28" stroke="currentColor" strokeWidth="4" fill="none" className="text-white/5" />
-                                                    <circle cx="28" cy="28" r="28" stroke="currentColor" strokeWidth="4" fill="none" 
-                                                        className={signal.color} 
-                                                        strokeDasharray="175" 
-                                                        strokeDashoffset={175 - (175 * signal.confidence) / 100} 
-                                                        strokeLinecap="round" 
-                                                    />
-                                                </svg>
-                                                <span className="text-sm font-bold text-white relative z-10">{signal.confidence}%</span>
-                                            </div>
-                                        </div>
-                                    </motion.div>
-
-                                    {/* Live Portfolio Stats Card */}
-                                    <motion.div 
-                                        onClick={() => navigate('/pnl')}
-                                        whileHover={{ y: -4, scale: 1.02 }}
-                                        className="cursor-pointer bg-[#0f0f13] border border-white/5 p-6 rounded-2xl shadow-xl hover:border-indigo-500/30 hover:bg-[#121216] transition-all group"
+                {/* Dashboard Grid — Full Screen Layout */}
+                <div className="flex-1 flex flex-col xl:flex-row overflow-hidden bg-[#050505]">
+                    
+                    {/* Left Column: Fullscreen Chart Area */}
+                    <div className="flex-1 bg-[#0a0a0c] flex flex-col relative border-r border-white/5">
+                        {/* Chart Controls Top Bar */}
+                        <div className="p-3 border-b border-white/5 flex flex-wrap items-center justify-between gap-4 bg-[#050505]/80 backdrop-blur-sm z-10">
+                            <div className="flex items-center gap-1 bg-white/5 p-1 rounded-lg border border-white/5">
+                                {['1H', '24H', '1W', '1M', '3M', '1Y'].map((tf) => (
+                                    <button
+                                        key={tf}
+                                        onClick={() => setTimeframe(tf)}
+                                        className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all ${timeframe === tf ? 'bg-indigo-600 text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-white/10'}`}
                                     >
-                                        <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest mb-4 flex items-center justify-between">
-                                            <div className="flex items-center gap-2">
-                                                <TrendingUp className="size-4 group-hover:text-indigo-400 transition-colors" /> Portfolio Performance
-                                            </div>
-                                            <span className="text-[9px] text-indigo-500 bg-indigo-500/10 px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">View PnL</span>
-                                        </h3>
-                                        {portfolioStats ? (
-                                            <div className="space-y-3">
-                                                <div className="flex justify-between items-center">
-                                                    <span className="text-xs text-slate-500">Net PnL</span>
-                                                    <span className={`text-sm font-black ${portfolioStats.netPnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
-                                                        {portfolioStats.netPnl >= 0 ? '+' : ''}${(Number(portfolioStats.netPnl) || 0).toFixed(2)}
-                                                    </span>
-                                                </div>
-                                                <div className="flex justify-between items-center">
-                                                    <span className="text-xs text-slate-500">Win Rate</span>
-                                                    <span className="text-sm font-black text-indigo-400">{portfolioStats.winRate}</span>
-                                                </div>
-                                                <div className="flex justify-between items-center">
-                                                    <span className="text-xs text-slate-500">Account Health</span>
-                                                    <span className="text-sm font-black text-white">${portfolioStats.accountHealth}</span>
-                                                </div>
-                                                <div className="flex justify-between items-center">
-                                                    <span className="text-xs text-slate-500">Favourite Pair</span>
-                                                    <span className="text-sm font-black text-indigo-300">{portfolioStats.favouritePair}</span>
-                                                </div>
-                                                <div className="h-px bg-white/5 my-1"></div>
-                                                <div className="flex justify-between text-[10px] font-bold">
-                                                    <span className="text-emerald-500">{portfolioStats.winningTrades}W</span>
-                                                    <span className="text-slate-500">{portfolioStats.totalTrades} Total</span>
-                                                    <span className="text-rose-500">{portfolioStats.losingTrades}L</span>
-                                                </div>
-                                            </div>
-                                        ) : (
-                                            <p className="text-xs text-slate-500 text-center py-4">No trade history yet. Execute a trade to see stats.</p>
-                                        )}
-                                    </motion.div>
-                                </div>
+                                        {tf}
+                                    </button>
+                                ))}
+                            </div>
+                            <div className="flex items-center gap-1 bg-white/5 p-1 rounded-lg border border-white/5">
+                                <button 
+                                    onClick={() => setChartType('line')}
+                                    className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all flex items-center gap-2 ${chartType === 'line' ? 'bg-slate-800 text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-white/10'}`}
+                                >
+                                    <LineChart className="size-3.5" /> Line
+                                </button>
+                                <button 
+                                    onClick={() => setChartType('candle')}
+                                    className={`px-3 py-1.5 text-xs font-bold rounded-md transition-all flex items-center gap-2 ${chartType === 'candle' ? 'bg-slate-800 text-white shadow-md' : 'text-slate-400 hover:text-slate-200 hover:bg-white/10'}`}
+                                >
+                                    <Crosshair className="size-3.5" /> Candle
+                                </button>
+                            </div>
                         </div>
 
-                        {/* Right Column: Order Entry & History */}
-                        <div className="space-y-6">
+                        {/* The Actual Chart */}
+                        <div className="flex-1 relative w-full h-full overflow-hidden bg-[#0a0a0c]/20">
+                            {isLoading && (
+                                <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#0a0a0c]/80 backdrop-blur-sm">
+                                    <div className="flex flex-col items-center gap-3 text-indigo-400">
+                                        <RefreshCcw className="size-6 animate-spin" />
+                                        <span className="text-xs font-bold tracking-widest uppercase">Syncing Data Server...</span>
+                                    </div>
+                                </div>
+                            )}
+                            {!isLive && ohlcData.length === 0 && (
+                                <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#0a0a0c]/80 backdrop-blur-sm text-center px-4">
+                                    <div className="flex flex-col items-center gap-3 text-amber-500 max-w-sm">
+                                        <span className="text-4xl">📡</span>
+                                        <span className="text-sm font-bold tracking-widest uppercase">Data Feed Offline / Rate Limited</span>
+                                        <p className="text-[10px] text-slate-400">TwelveData's Free Tier allows exactly 800 calls per day & 8 per minute. If you see this, wait one minute or check API limits.</p>
+                                    </div>
+                                </div>
+                            )}
+                            <div ref={chartContainerRef} className="absolute inset-0" />
+                        </div>
+                    </div>
+
+                    {/* Right Column: Order Entry, History & Stats Sidebar */}
+                    <div className="w-full xl:w-[350px] shrink-0 bg-[#0f0f13] flex flex-col overflow-y-auto" style={{ scrollbarWidth: 'none' }}>
+                        <div className="p-6 space-y-6">
+                            
                             {/* Order Execution Widget */}
-                            <div className="bg-[#0f0f13] border border-white/5 rounded-2xl p-6 shadow-2xl">
-                                <h3 className="text-sm font-bold text-white mb-6 flex items-center gap-2">
+                            <div className="bg-[#1c1c20] border border-white/5 rounded-2xl p-5 shadow-2xl relative overflow-hidden">
+                                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-indigo-500/0 via-indigo-500 to-indigo-500/0"></div>
+                                <h3 className="text-sm font-bold text-white mb-5 flex items-center gap-2">
                                     <Zap className="size-4 text-indigo-400" />
                                     Order Execution
                                 </h3>
                                 
-                                <div className="space-y-5">
-                                    <div className="space-y-2">
+                                <div className="space-y-4">
+                                    <div className="space-y-1.5">
                                         <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Transaction Size</label>
                                         <div className="relative">
                                             <input 
                                                 type="number" 
                                                 value={lotSize}
                                                 onChange={(e) => setLotSize(e.target.value === '' ? '' : parseFloat(e.target.value) || 0)}
-                                                className="w-full bg-[#0a0a0c] border border-white/10 rounded-xl py-3 px-4 text-white font-bold outline-none focus:border-indigo-500 transition-colors"
+                                                className="w-full bg-[#0a0a0c] border border-white/10 rounded-xl py-2.5 px-4 text-white font-bold outline-none focus:border-indigo-500 transition-colors"
                                             />
                                             <span className="absolute right-4 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-500">Lots</span>
                                         </div>
                                     </div>
                                     <div className="grid grid-cols-2 gap-3">
-                                        <div className="space-y-2">
+                                        <div className="space-y-1.5">
                                             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Stop Loss</label>
                                             <div className="relative">
-                                                <input type="number" value={stopLossPips} onChange={(e) => setStopLossPips(e.target.value === '' ? '' : parseFloat(e.target.value) || 0)} className="w-full bg-[#0a0a0c] border border-white/10 rounded-xl py-3 px-4 text-white font-bold outline-none focus:border-indigo-500 transition-colors" />
+                                                <input type="number" value={stopLossPips} onChange={(e) => setStopLossPips(e.target.value === '' ? '' : parseFloat(e.target.value) || 0)} className="w-full bg-[#0a0a0c] border border-white/10 rounded-xl py-2.5 px-3 text-white font-bold outline-none focus:border-indigo-500 transition-colors" />
                                                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-500">Pips</span>
                                             </div>
                                         </div>
-                                        <div className="space-y-2">
+                                        <div className="space-y-1.5">
                                             <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Take Profit</label>
                                             <div className="relative">
-                                                <input type="number" value={takeProfitPips} onChange={(e) => setTakeProfitPips(e.target.value === '' ? '' : parseFloat(e.target.value) || 0)} className="w-full bg-[#0a0a0c] border border-white/10 rounded-xl py-3 px-4 text-white font-bold outline-none focus:border-indigo-500 transition-colors" />
+                                                <input type="number" value={takeProfitPips} onChange={(e) => setTakeProfitPips(e.target.value === '' ? '' : parseFloat(e.target.value) || 0)} className="w-full bg-[#0a0a0c] border border-white/10 rounded-xl py-2.5 px-3 text-white font-bold outline-none focus:border-indigo-500 transition-colors" />
                                                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-[10px] font-bold text-slate-500">Pips</span>
                                             </div>
                                         </div>
@@ -545,13 +488,13 @@ const HistoricalAnalysis = () => {
                                         </button>
                                     </div>
                                     
-                                    <div className="p-3 bg-black/20 rounded-lg border border-white/5 flex flex-col gap-2 mt-2">
+                                    <div className="p-3 bg-[#0a0a0c] rounded-lg border border-white/5 flex flex-col gap-1.5 mt-1">
                                         <div className="flex items-center justify-between">
-                                            <span className="text-xs text-slate-400 font-medium">Est. Margin</span>
-                                            <span className="text-sm font-bold text-white">${(((lotSize === '' ? 0 : lotSize) * getContractSize(activeSymbol.base) * (prices.mid || currentPrice || 0)) / 500).toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
+                                            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Est. Margin</span>
+                                            <span className="text-xs font-bold text-white">${(((lotSize === '' ? 0 : lotSize) * getContractSize(activeSymbol.base) * (prices.mid || currentPrice || 0)) / 500).toLocaleString('en-US', {minimumFractionDigits: 2})}</span>
                                         </div>
                                         <div className="flex items-center justify-between">
-                                            <span className="text-xs text-slate-400 font-medium">Spread Cost</span>
+                                            <span className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Spread Cost</span>
                                             <span className="text-xs font-bold text-amber-400">
                                                 -${(((prices.ask - prices.bid) || 0) * (lotSize === '' ? 0 : lotSize) * getContractSize(activeSymbol.base)).toFixed(2)}
                                             </span>
@@ -559,80 +502,58 @@ const HistoricalAnalysis = () => {
                                     </div>
                                 </div>
                             </div>
-
+                            
                             {/* Recent Trades Sidebar */}
-                            <div 
-                                onClick={() => navigate('/pnl')}
-                                className="cursor-pointer bg-[#0f0f13] border border-white/5 rounded-2xl p-6 shadow-2xl flex-1 max-h-[400px] flex flex-col hover:border-indigo-500/30 hover:bg-[#121216] transition-all group"
-                            >
+                            <div className="bg-[#1c1c20] border border-white/5 rounded-2xl p-5 shadow-2xl flex flex-col">
                                 <h3 className="text-sm font-bold text-white mb-4 flex items-center justify-between">
                                     <div className="flex items-center gap-2">
                                         <History className="size-4 text-indigo-400" />
                                         Recent Activity
                                     </div>
-                                    <span className="text-[9px] text-indigo-500 bg-indigo-500/10 px-2 py-0.5 rounded uppercase tracking-widest opacity-0 group-hover:opacity-100 transition-opacity">View Ledger →</span>
+                                    <button onClick={() => navigate('/pnl')} className="text-[9px] text-indigo-500 bg-indigo-500/10 hover:bg-indigo-500/20 px-2 py-1 rounded uppercase tracking-widest transition-colors font-bold">Ledger →</button>
                                 </h3>
-                                <div className="flex-1 overflow-y-auto pr-2 space-y-3" style={{ scrollbarWidth: 'none' }}>
+                                <div className="flex-1 flex flex-col gap-2 max-h-[300px] overflow-y-auto pr-1" style={{ scrollbarWidth: 'none' }}>
                                     <AnimatePresence>
                                         {tradeHistory.length === 0 ? (
-                                            <p className="text-xs text-slate-500 text-center py-8">No recent trades found.</p>
+                                            <p className="text-xs text-slate-500 text-center py-6">No recent trades found.</p>
                                         ) : (
                                             tradeHistory.map((trade, idx) => {
-                                                // Live Floating PnL for OPEN trades
                                                 let floatingPnl = null;
-                                                // Identify multiplier from pair (e.g. BTC/USD -> getContractSize('BTC'))
-                                                const tradeBase = trade.pair.split('/')[0];
+                                                const tradeBase = (trade.pair || '').includes('/') ? trade.pair.split('/')[0] : (trade.pair || 'EUR');
                                                 const contractSize = getContractSize(tradeBase);
                                                 
                                                 if (trade.status === 'OPEN' && prices.bid > 0) {
                                                     const exitPrice = trade.type === 'BUY' ? prices.bid : prices.ask;
-                                                    const priceDiff  = trade.type === 'BUY'
-                                                        ? exitPrice - trade.entry
-                                                        : trade.entry - exitPrice;
-                                                    floatingPnl = priceDiff * (trade.lots * contractSize);
+                                                    const entryPrice = parseFloat(trade.entry) || 0;
+                                                    const priceDiff  = trade.type === 'BUY' ? exitPrice - entryPrice : entryPrice - exitPrice;
+                                                    floatingPnl = priceDiff * (parseFloat(trade.lots) * contractSize);
                                                 }
 
                                                 return (
-                                                    <motion.div
-                                                        initial={{ opacity: 0, y: 10 }}
-                                                        animate={{ opacity: 1, y: 0 }}
-                                                        key={trade.id || idx}
-                                                        className="p-3 bg-white/[0.02] border border-white/5 rounded-xl hover:bg-white/[0.04] transition-colors"
-                                                    >
-                                                        <div className="flex justify-between items-start mb-1">
-                                                            <span className={`text-[10px] font-black tracking-widest ${trade.type === 'BUY' ? 'text-emerald-400' : 'text-rose-400'}`}>
-                                                                {trade.type}
-                                                            </span>
-                                                            <span className={`text-[9px] font-black px-1.5 py-0.5 rounded ${
-                                                                trade.status === 'OPEN'
-                                                                    ? 'bg-indigo-500/10 text-indigo-400'
-                                                                    : 'bg-slate-500/10 text-slate-500'
-                                                            }`}>{trade.status}</span>
+                                                    <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} key={trade.id || idx} className="p-3 bg-[#0a0a0c] border border-white/5 rounded-xl">
+                                                        <div className="flex justify-between items-start mb-1.5">
+                                                            <div className="flex items-center gap-2">
+                                                                <span className={`text-[10px] font-black tracking-widest ${trade.type === 'BUY' ? 'text-emerald-400' : 'text-rose-400'}`}>{trade.type}</span>
+                                                                <span className="text-xs font-bold text-white">{trade.pair || 'Unknown'}</span>
+                                                            </div>
+                                                            <span className={`text-[8px] font-black px-1.5 py-0.5 rounded ${trade.status === 'OPEN' ? 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20' : 'bg-white/5 text-slate-500'}`}>{trade.status}</span>
                                                         </div>
                                                         <div className="flex justify-between items-end">
                                                             <div>
-                                                                <p className="text-sm font-bold text-white">{trade.pair}</p>
-                                                                <p className="text-xs text-slate-400">{trade.lots} Lots @ {trade.entry?.toFixed(5)}</p>
+                                                                <p className="text-[10px] text-slate-400 font-medium">{trade.lots} Lots @ {parseFloat(trade.entry || 0).toFixed(5)}</p>
                                                             </div>
                                                             <div className="text-right">
                                                                 {floatingPnl !== null ? (
-                                                                    <div className="flex flex-col items-end">
-                                                                        <p className={`text-sm font-black tabular-nums ${
-                                                                            floatingPnl >= 0 ? 'text-emerald-400' : 'text-rose-400'
-                                                                        }`}>
+                                                                    <div className="flex flex-col items-end gap-1.5">
+                                                                        <p className={`text-sm font-black tabular-nums ${floatingPnl >= 0 ? 'text-emerald-400' : 'text-rose-400'}`}>
                                                                             {floatingPnl >= 0 ? '+' : ''}{(floatingPnl || 0).toFixed(2)}
                                                                         </p>
                                                                         {trade.status === 'OPEN' && (
-                                                                            <button
-                                                                                onClick={() => closeOpenTrade(trade.id, trade.type === 'BUY' ? prices.bid : prices.ask)}
-                                                                                className="mt-2 px-3 py-1 bg-red-500/10 text-red-500 border border-red-500/20 rounded hover:bg-red-500/20 text-[10px] font-bold transition-all uppercase"
-                                                                            >
-                                                                                Close Trade
-                                                                            </button>
+                                                                            <button onClick={() => closeOpenTrade(trade.id, trade.type === 'BUY' ? prices.bid : prices.ask)} className="px-2 py-0.5 bg-rose-500/10 text-rose-500 border border-rose-500/20 rounded text-[9px] font-bold uppercase transition-colors hover:bg-rose-500/20">Close</button>
                                                                         )}
                                                                     </div>
                                                                 ) : (
-                                                                    <p className="text-xs text-slate-500">{trade.date}</p>
+                                                                    <p className="text-[10px] text-slate-500">{trade.date}</p>
                                                                 )}
                                                             </div>
                                                         </div>
@@ -641,6 +562,30 @@ const HistoricalAnalysis = () => {
                                             })
                                         )}
                                     </AnimatePresence>
+                                </div>
+                            </div>
+                            
+                            {/* Alpha Signal Stats Panel */}
+                            <div className="bg-[#1c1c20] border border-white/5 p-5 rounded-2xl shadow-xl">
+                                <div className="flex items-center justify-between mb-3">
+                                    <h3 className="text-xs font-bold text-slate-400 uppercase tracking-widest flex items-center gap-2">
+                                        <Target className="size-3.5" />
+                                        Alpha Signal
+                                    </h3>
+                                    <span className="px-1.5 py-0.5 bg-indigo-500/10 text-indigo-400 text-[8px] font-bold rounded border border-indigo-500/20">AI</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <div>
+                                        <p className={`text-xl font-black tracking-tight ${signal.color}`}>{signal.label}</p>
+                                        <p className="text-[10px] text-slate-500 mt-0.5">24h Momentum</p>
+                                    </div>
+                                    <div className="size-12 rounded-full border-[3px] border-[#0a0a0c] flex items-center justify-center relative">
+                                        <svg className="absolute inset-0 size-full -rotate-90">
+                                            <circle cx="21" cy="21" r="21" stroke="currentColor" strokeWidth="3" fill="none" className="text-white/5" />
+                                            <circle cx="21" cy="21" r="21" stroke="currentColor" strokeWidth="3" fill="none" className={signal.color} strokeDasharray="131.9" strokeDashoffset={131.9 - (131.9 * signal.confidence) / 100} strokeLinecap="round" />
+                                        </svg>
+                                        <span className="text-xs font-bold text-white relative z-10">{signal.confidence}%</span>
+                                    </div>
                                 </div>
                             </div>
 

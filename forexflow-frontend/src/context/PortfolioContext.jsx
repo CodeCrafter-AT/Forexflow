@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
 const PortfolioContext = createContext();
@@ -23,20 +24,30 @@ export function PortfolioProvider({ children }) {
 
   // Authentication Flow
   const authenticate = async (mode, username, password) => {
-    const res = await fetch(`${API_BASE}/api/auth/${mode}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-    });
-    const data = await res.json();
-    if (!data.success) throw new Error(data.error);
-    
-    setToken(data.token);
-    setUser(data.user);
-    setBalance(data.user.balance);
-    localStorage.setItem('token', data.token);
-    localStorage.setItem('user', JSON.stringify(data.user));
-    return data;
+    try {
+      const res = await fetch(`${API_BASE}/api/auth/${mode}`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username, password })
+      });
+      
+      const contentType = res.headers.get("content-type");
+      if (!contentType || !contentType.includes("application/json")) {
+         throw new Error("Backend server is unreachable or returned invalid data. Please ensure the backend is running.");
+      }
+      
+      const data = await res.json();
+      if (!data.success) throw new Error(data.error || 'Authentication Failed');
+      
+      setToken(data.token);
+      setUser(data.user);
+      setBalance(data.user.balance);
+      localStorage.setItem('token', data.token);
+      localStorage.setItem('user', JSON.stringify(data.user));
+      return data;
+    } catch (err) {
+      throw new Error(err.message || 'Network error connecting to backend.');
+    }
   };
 
   const logout = () => {
@@ -58,7 +69,7 @@ export function PortfolioProvider({ children }) {
         ...options.headers
       }
     });
-  }, [token]);
+  }, [token, API_BASE]);
 
   useEffect(() => {
     if (!user || !token) {
@@ -69,7 +80,7 @@ export function PortfolioProvider({ children }) {
     // Auto-fetch profile dynamically utilizing logged in user
     authFetch(`/api/users/portfolio/${user.username}`)
       .then(res => {
-          if (res.status === 401) throw new Error("Unauthorized");
+          if (!res.ok) throw new Error(res.statusText || "Fetch failed");
           return res.json();
       })
       .then(data => {
@@ -78,6 +89,8 @@ export function PortfolioProvider({ children }) {
           setActiveSymbolState(data.user.activeSymbol);
           setTradeHistory(data.trades || []);
           setIsLoaded(true);
+        } else {
+          throw new Error("User data missing from response");
         }
       })
       .catch(err => {

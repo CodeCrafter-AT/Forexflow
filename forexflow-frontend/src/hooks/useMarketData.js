@@ -28,11 +28,13 @@ export function useMarketData(base = 'EUR', target = 'USD', intervalSeconds = 30
         let outputSize = 60;
         
         switch (timeframe) {
+            case '1H': apiInterval = '1min'; outputSize = 60; break;
+            case '24H': apiInterval = '15min'; outputSize = 96; break;
             case '1W': apiInterval = '1h'; outputSize = 168; break;
             case '1M': apiInterval = '4h'; outputSize = 180; break;
             case '3M': apiInterval = '1day'; outputSize = 90; break;
             case '6M': apiInterval = '1day'; outputSize = 180; break;
-            case '1Y': apiInterval = '1day'; outputSize = 365; break;
+            case '1Y': apiInterval = '1week'; outputSize = 52; break;
             default:   apiInterval = '1min'; outputSize = 60; break;
         }
 
